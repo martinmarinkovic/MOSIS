@@ -183,9 +183,12 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                Intent intent = new Intent(GoogleMapsActivity.this, PlaceProfile.class);
                 int i  = markerPlaceIdMap.get(marker);
-                intent.putExtra("position", i);
+                Bundle positionBundle = new Bundle();
+                positionBundle.putInt("position", i);
+                positionBundle.putInt("activity", 1);
+                Intent intent = new Intent(GoogleMapsActivity.this, PlaceProfile.class);
+                intent.putExtras(positionBundle);
                 startActivity(intent);
                 return false;
             }

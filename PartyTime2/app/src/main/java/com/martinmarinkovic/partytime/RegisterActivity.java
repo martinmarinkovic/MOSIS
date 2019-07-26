@@ -104,7 +104,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     sendVerificationEmail();
                                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                     String uid = user.getUid();
-                                    User newUser = new User(firstname, lastname, "default", 0, uid, "", "default");
+                                    User newUser = new User(firstname, lastname, "default", uid, "", "default");
                                     databaseReference.child("Users")
                                             .child(uid)
                                             .setValue(newUser);

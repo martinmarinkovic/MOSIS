@@ -29,25 +29,22 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class AddNewPlace extends AppCompatActivity implements View.OnClickListener {
 
-    boolean editMode = true;
     int position = -1;
-    private static final int GALLERY_PICK = 1;
-    private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
-    String placeID;
-    private DatabaseReference mUserDatabase;
+    String AB;
+    SecureRandom rnd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_place);
-
-        mImageStorage = FirebaseStorage.getInstance().getReference();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -58,6 +55,9 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
         final Button buttonFinished = (Button)findViewById(R.id.editmyplace_finished_button);
         Button cancelButton = (Button)findViewById(R.id.editmyplace_cancel_button);
         EditText nameEditText = (EditText)findViewById(R.id.editmyplace_name_edit);
+
+        AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        rnd = new SecureRandom();
 
         buttonFinished.setEnabled(false);
         buttonFinished.setText("Add");
@@ -81,17 +81,6 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
 
         Button locationButton = (Button) findViewById(R.id.editmyplace_location_button);
         locationButton.setOnClickListener(this);
-
-        Button imageButton = (Button) findViewById(R.id.editmyplace_change_image_button);
-        imageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent galleryIntent = new Intent();
-                galleryIntent.setType("image/*");
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(galleryIntent, "SELECT IMAGE"), GALLERY_PICK);
-            }
-        });
     }
 
     @Override
@@ -112,10 +101,24 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
                 MyPlace place = new MyPlace(name, desc, "default");
                 place.setLatitude(lat);
                 place.setLongitude(lon);
-                MyPlacesData.getInstance().addNewPlace(place);
+                //String key = database.push().getKey();
+                String key = randomString(20);
+                MyPlacesData.getInstance().addNewPlace(place, key);//da dodam neki random string generator
+                AllPlacesData.getInstance().addNewPlace(place, key);
 
                 setResult(Activity.RESULT_OK);
-                finish();
+                //finish();
+
+                //Float flat = Float.parseFloat(lat);
+                //Float flon = Float.parseFloat(lon);
+                Bundle bundle = new Bundle();
+                bundle.putString("placeID", key);
+                bundle.putString("lat", lat);
+                bundle.putString("lon", lon);
+                Intent i = new Intent(AddNewPlace.this, AddMyPlacePhoto.class);
+                i.putExtras(bundle);
+                startActivity(i);
+
                 break;
             }
 
@@ -133,7 +136,7 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         try {
@@ -148,61 +151,13 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
         } catch (Exception e) {
             // TODO
         }
+    }
 
-        if (requestCode == GALLERY_PICK && resultCode == RESULT_OK) {
-
-            Uri imageUri = data.getData();
-            CropImage.activity(imageUri)
-                    .setAspectRatio(2, 1)
-                    .setMinCropWindowSize(1000, 500)
-                    .start(this);
-        }
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
-            if (resultCode == RESULT_OK) {
-
-                mProgressDialog = new ProgressDialog(AddNewPlace.this);
-                mProgressDialog.setTitle("Uploading Image...");
-                mProgressDialog.setMessage("Please wait while we upload and process the image.");
-                mProgressDialog.setCanceledOnTouchOutside(false);
-                mProgressDialog.show();
-
-                final Uri resultUri = result.getUri();
-                final StorageReference filepath = mImageStorage.child("places_profile_images").child(placeID + ".jpg");
-
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                        if(task.isSuccessful()){
-                            final String download_url = resultUri.toString();
-                            Map update_hashMap = new HashMap();
-                            update_hashMap.put("image", download_url);
-                            mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        mProgressDialog.dismiss();
-                                        Toast.makeText(AddNewPlace.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
-
-                        }else{
-                            Toast.makeText(AddNewPlace.this, "Error in uploading.", Toast.LENGTH_LONG).show();
-                            mProgressDialog.dismiss();
-                        }
-                    }
-                });
-
-            }
-            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                Exception error = result.getError();
-            }
-        }
+    String randomString( int len ){
+        StringBuilder sb = new StringBuilder( len );
+        for( int i = 0; i < len; i++ )
+            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
     }
 }
 

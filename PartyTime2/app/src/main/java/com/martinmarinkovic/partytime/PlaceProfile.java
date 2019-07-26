@@ -24,10 +24,14 @@ public class PlaceProfile extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         int position = -1;
+        int activity = 0;
+        //String placeID;
         try {
             Intent listIntent = getIntent();
             Bundle positionBundle = listIntent.getExtras();
             position = positionBundle.getInt("position");
+            activity = positionBundle.getInt("activity");
+            //placeID = positionBundle.getString("placeID");
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
@@ -35,7 +39,12 @@ public class PlaceProfile extends AppCompatActivity {
 
         if (position >= 0) {
 
-            MyPlace place = MyPlacesData.getInstance().getPlace(position);
+            MyPlace place = null;
+
+            if (activity == 1)
+                place = MyPlacesData.getInstance().getPlace(position);
+            else
+                place = AllPlacesData.getInstance().getPlace(position);
 
             TextView twName = (TextView) findViewById(R.id.my_place_name);
             twName.setText(place.getName());
