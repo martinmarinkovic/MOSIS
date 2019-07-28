@@ -15,6 +15,8 @@ import com.squareup.picasso.Picasso;
 
 public class PlaceProfile extends AppCompatActivity {
 
+    String placeID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +27,8 @@ public class PlaceProfile extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         int position = -1;
         int activity = 0;
-        //String placeID;
+        placeID = null;
+
         try {
             Intent listIntent = getIntent();
             Bundle positionBundle = listIntent.getExtras();
@@ -45,6 +48,8 @@ public class PlaceProfile extends AppCompatActivity {
                 place = MyPlacesData.getInstance().getPlace(position);
             else
                 place = AllPlacesData.getInstance().getPlace(position);
+
+            placeID = place.getKey();//?????????????????????????????????????????????????????????????????????????????????????????????
 
             TextView twName = (TextView) findViewById(R.id.my_place_name);
             twName.setText(place.getName());
@@ -69,11 +74,20 @@ public class PlaceProfile extends AppCompatActivity {
             }
 
         }
-        final Button startQuiz = (Button) findViewById(R.id.start_quiz);
+
+        Button startQuiz = (Button) findViewById(R.id.start_quiz);
         startQuiz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                if(placeID != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString("placeID", placeID);
+                    Intent i = new Intent(PlaceProfile.this, CommentsView.class);
+                    i.putExtras(bundle);
+                    startActivity(i);
+                }
+                else
+                    Toast.makeText(PlaceProfile.this, "NIJE NASO MESTO!!! PLACE ID = NULL", Toast.LENGTH_SHORT).show();
             }
         });
     }
