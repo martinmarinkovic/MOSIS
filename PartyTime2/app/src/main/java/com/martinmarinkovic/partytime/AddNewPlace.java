@@ -98,7 +98,7 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
                 String lon = lonEdit.getText().toString();
                 ImageView img = (ImageView) findViewById(R.id.my_place_image);
 
-                MyPlace place = new MyPlace(name, desc, "default");
+                MyPlace place = new MyPlace(name, desc, "default", 0);
                 place.setLatitude(lat);
                 place.setLongitude(lon);
                 //String key = database.push().getKey();

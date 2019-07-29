@@ -8,10 +8,6 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/theme"/>
+    <include layout="@layout/activity_main2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

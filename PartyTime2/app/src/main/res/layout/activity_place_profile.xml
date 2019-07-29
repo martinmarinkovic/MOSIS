@@ -48,19 +48,6 @@
         android:textColor="@android:color/white"
         android:textSize="24sp" />
 
-    <Button
-        android:id="@+id/start_quiz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:backgroundTint="@color/colorAccent"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:text="START QUIZ"
-        android:textColor="@android:color/white" />
-
     <TextView
         android:id="@+id/my_place_desc"
         android:layout_width="wrap_content"
@@ -71,5 +58,34 @@
         android:layout_marginBottom="29dp"
         android:text="Description..."
         android:textColor="@android:color/white" />
+
+    <LinearLayout
+        android:layout_marginLeft="50dp"
+        android:layout_marginBottom="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+    <Button
+        android:id="@+id/start_quiz"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorAccent"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="Comments"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/ratings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorAccent"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="Rate this"
+        android:textColor="@android:color/white" />
+
+    </LinearLayout>
 
 </RelativeLayout>

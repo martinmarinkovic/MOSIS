@@ -9,16 +9,20 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.net.CacheRequest;
+
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     ImageView imageView;
+    CardView cv1, cv2, cv3, cv4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
+        /*
+
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,14 +42,41 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, AddNewPlace.class);
                 startActivity(intent);
             }
-        });
+        });*/
 
-        imageView = (ImageView) findViewById(R.id.image);
-        imageView.setOnClickListener(new View.OnClickListener() {
+        cv1 = (CardView) findViewById(R.id.cv1);
+        cv1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(MainActivity.this, GoogleMapsActivity.class);
                 i.putExtra("state", GoogleMapsActivity.SHOW_MAP);
+                startActivity(i);
+            }
+        });
+
+        cv2 = (CardView) findViewById(R.id.cv2);
+        cv2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, UserProfile.class);
+                startActivity(i);
+            }
+        });
+
+        cv3 = (CardView) findViewById(R.id.cv3);
+        cv3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, MyPlacesList.class);
+                startActivity(i);
+            }
+        });
+
+        cv4 = (CardView) findViewById(R.id.cv4);
+        cv4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MainActivity.this, AllPlacesList.class);
                 startActivity(i);
             }
         });
@@ -61,17 +94,8 @@ public class MainActivity extends AppCompatActivity {
 
         int id = item.getItemId();
 
-        if (id == R.id.profile) {
-            Intent i = new Intent(this, UserProfile.class);
-            startActivity(i);
-        }else if (id == R.id.table) {
-            Intent i = new Intent(this, MyPlacesList.class);
-            startActivity(i);
-        }else if (id == R.id.my_places_list) {
-            Intent i = new Intent(this, MyPlacesList.class);
-            startActivity(i);
-        }else if (id == R.id.about) {
-            Intent i = new Intent(this, AllPlacesList.class);
+        if (id == R.id.about) {
+            Intent i = new Intent(this, AddNewFriend.class);
             startActivity(i);
         }
         else if (id == R.id.sign_out) {

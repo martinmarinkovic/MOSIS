@@ -29,7 +29,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CommentsView"></activity>
+        <activity android:name=".RatingBarActivity"></activity>
+        <activity android:name=".AddNewFriend" />
+        <activity android:name=".CommentsView" />
         <activity android:name=".AddMyPlacePhoto" />
         <activity android:name=".AllPlacesList" />
         <activity android:name=".About" />

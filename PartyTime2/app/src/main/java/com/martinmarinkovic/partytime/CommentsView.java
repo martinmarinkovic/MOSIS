@@ -196,7 +196,41 @@ public class CommentsView extends AppCompatActivity {
                 });
         */
 
+        Query query = myRef
+                .child("my-places")
+                .child(placeID)
+                .child("comments");
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                Comment comment = dataSnapshot.getValue(Comment.class);
+                mComments.add(comment);
 
+                CommentListAdapter adapter = new CommentListAdapter(CommentsView.this, mComments);
+                mListView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        /*
         Query query = myRef
                 .child("my-places")
                 .child(placeID)
@@ -228,6 +262,6 @@ public class CommentsView extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });
+        });*/
     }
 }

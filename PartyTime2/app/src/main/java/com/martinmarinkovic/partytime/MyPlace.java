@@ -11,17 +11,24 @@ public class MyPlace {
     public String longitude;
     public String latitude;
     public String image;
+    public float rating;
+    @Exclude
+    public String key;
+
+    public MyPlace() {}
+
+    public MyPlace(String name, String description, String image, float rating) {
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.rating = rating;
+    }
 
     public MyPlace(String name, String description, String image) {
         this.name = name;
         this.description = description;
         this.image = image;
     }
-
-    @Exclude
-    public String key;
-
-    public MyPlace() {}
 
     public MyPlace(String name, String description) {
         this.name = name;
@@ -83,5 +90,13 @@ public class MyPlace {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
     }
 }

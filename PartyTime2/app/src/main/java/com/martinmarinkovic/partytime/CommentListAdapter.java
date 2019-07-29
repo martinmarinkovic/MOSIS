@@ -87,20 +87,24 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
             timestamp.setText("today");
         }
 
-        //if(!image.equals("default")) {
-            //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
-            Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                    .placeholder(R.drawable.default_avatar).into(profileImage, new Callback() {
-                @Override
-                public void onSuccess() {
-                }
+        try { //nije dobro!!! Koci ocitavanje!!!
+            if (!image.equals("default")) {
+                //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
+                Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
+                        .placeholder(R.drawable.default_avatar).into(profileImage, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                    }
 
-                @Override
-                public void onError(Exception e) {
-                    Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
-                }
-            });
-        //}
+                    @Override
+                    public void onError(Exception e) {
+                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
+                    }
+                });
+            }
+        }catch (NullPointerException e){
+            e.printStackTrace();
+        }
 
         return listView;
     }

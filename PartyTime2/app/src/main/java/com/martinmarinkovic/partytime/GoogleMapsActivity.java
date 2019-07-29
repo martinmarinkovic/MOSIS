@@ -72,7 +72,15 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(GoogleMapsActivity.this, AddNewPlace.class);
+                startActivity(intent);
+            }
+        });
 
+        /*
         if (state != SELECT_COORDINATES) {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -86,7 +94,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             if (layout != null) {
                 layout.removeView(fab);
             }
-        }
+        }*/
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);

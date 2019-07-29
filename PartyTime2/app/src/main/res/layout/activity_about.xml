@@ -12,6 +12,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/ImageRatingBar"
+            android:id="@+id/proba"
+            android:stepSize="1"
+            android:numStars="5"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"/>
+
         <TextView
             android:id="@+id/about_content"
             android:layout_width="wrap_content"
