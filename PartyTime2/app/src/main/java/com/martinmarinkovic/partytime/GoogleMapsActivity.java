@@ -182,7 +182,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             LatLng loc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lon));
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(loc);
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.sharp_add_black_36));
+            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_beer));
             markerOptions.title(place.getName());
             Marker marker = mMap.addMarker(markerOptions);
             markerPlaceIdMap.put(marker, i);

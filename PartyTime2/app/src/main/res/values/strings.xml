@@ -31,7 +31,7 @@
     <string name="btn_remove">Remove</string>
     <string name="btn_sign_out">Sign Out</string>
     <string name="lbl_forgot_password">Forgot password?</string>
-    <string name="forgot_password_msg">We just need your registered Email Id to sent you password reset instructions.</string>
+    <string name="forgot_password_msg">We just need your registered Email to sent you password reset instructions.</string>
     <string name="email_id">Email ID</string>
     <string name="profile">Profile</string>
     <string name="table">Table</string>
@@ -49,7 +49,7 @@
     <string name="editmyplace_cancel_label">Cancel</string>
     <string name="editmyplace_lat_label">Latitude:</string>
     <string name="editmyplace_lon_label">Longitude:</string>
-    <string name="editmyplace_location_label">Get Location:</string>
+    <string name="editmyplace_location_label">Get Location</string>
     <string name="title_activity_view_my_places">ViewMyPlacesActivity</string>
     <string name="viewmyplace_finished_button">OK</string>
     <string name="title_activity_my_places_maps">Map</string>

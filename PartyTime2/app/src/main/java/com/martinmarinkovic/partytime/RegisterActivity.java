@@ -15,12 +15,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword, inputFirstName, inputLastName;
+    private EditText inputEmail, inputPassword, inputFirstName, inputLastName, inputUsername;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
@@ -41,15 +45,8 @@ public class RegisterActivity extends AppCompatActivity {
         inputPassword = (EditText) findViewById(R.id.password);
         inputFirstName = (EditText) findViewById(R.id.firstname);
         inputLastName = (EditText) findViewById(R.id.lastname);
+        inputUsername = (EditText) findViewById(R.id.username);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
-
-        btnResetPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(RegisterActivity.this, ResetPasswordActivity.class));
-            }
-        });
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,6 +63,9 @@ public class RegisterActivity extends AppCompatActivity {
                 final String lastname = inputLastName.getText().toString().trim();
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
+                final String username = inputUsername.getText().toString().trim();
+
+                checkIfUsernameExists(username);
 
                 if (TextUtils.isEmpty(firstname)) {
                     Toast.makeText(getApplicationContext(), "Enter first name!", Toast.LENGTH_SHORT).show();
@@ -73,6 +73,10 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 if (TextUtils.isEmpty(lastname)) {
                     Toast.makeText(getApplicationContext(), "Enter last name!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (TextUtils.isEmpty(username)) {
+                    Toast.makeText(getApplicationContext(), "Enter username!", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (TextUtils.isEmpty(email)) {
@@ -104,7 +108,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     sendVerificationEmail();
                                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                                     String uid = user.getUid();
-                                    User newUser = new User(firstname, lastname, "default", uid, "", "default");
+                                    User newUser = new User(firstname, lastname, username,"default", uid, "", "default");
                                     databaseReference.child("Users")
                                             .child(uid)
                                             .setValue(newUser);
@@ -114,6 +118,31 @@ public class RegisterActivity extends AppCompatActivity {
                                 }
                             }
                         });
+            }
+        });
+    }
+
+    private void checkIfUsernameExists(final String username) {
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference
+                .child("Users")
+                .orderByChild("username")
+                .equalTo(username);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot singleSnapshot: dataSnapshot.getChildren()){
+                    if (singleSnapshot.exists()){
+                        Toast.makeText(RegisterActivity.this, "That username already exists.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

@@ -17,8 +17,7 @@
         android:layout_height="match_parent"
         android:id="@+id/relLayout2"
         android:layout_below="@+id/relLayout1"
-        android:layout_marginBottom="60dp"
-        android:background="@color/darkGray">
+        android:layout_marginBottom="60dp">
 
         <ListView
             android:layout_width="match_parent"
@@ -44,14 +43,16 @@
             android:layout_centerVertical="true"
             android:textColor="@color/white"
             android:hint="Add a comment..."
-            android:textSize="14sp"
+            android:textColorHint="@color/white"
+            android:textSize="15sp"
             android:id="@+id/comment"/>
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="10dp"
             android:layout_centerVertical="true"
-            android:src="@drawable/ic_menu_send"
+            android:src="@drawable/ic_add_comment"
             android:id="@+id/ivPostComment"
             android:layout_alignParentRight="true"/>
 

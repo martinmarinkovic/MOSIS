@@ -3,7 +3,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bottom_border">
+        android:background="@drawable/bottom_border_toolbar">
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
@@ -20,7 +20,7 @@
                     android:layout_marginEnd="20dp"
                     android:layout_centerVertical="true"
                     android:id="@+id/backArrow"
-                    android:src="@drawable/ic_launcher_background"
+                    android:src="@drawable/ic_back_arrow"
                     android:layout_marginRight="20dp" />
 
                 <TextView

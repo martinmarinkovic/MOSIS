@@ -9,27 +9,16 @@
     <LinearLayout
         android:orientation="vertical"
         android:background="@drawable/theme"
-        android:weightSum="1"
+        android:weightSum="5"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--
        <RelativeLayout
-           android:layout_weight="4"
+           android:layout_weight="1"
            android:layout_width="match_parent"
            android:layout_height="0dp">
 
-           <TextView
-               android:id="@+id/textGrid"
-               android:text="PARTY TIME"
-               android:textSize="34sp"
-               android:textColor="@android:color/white"
-               android:layout_centerInParent="true"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content" />
-
        </RelativeLayout>
-       -->
 
        <GridLayout
            android:id="@+id/mainGrid"
@@ -37,28 +26,23 @@
            android:rowCount="2"
            android:alignmentMode="alignMargins"
            android:columnOrderPreserved="false"
-           android:layout_weight="1"
+           android:layout_weight="3"
            android:layout_width="match_parent"
            android:layout_height="0dp"
            android:padding="20dp">
 
-           <!-- Row 1 -->
-
-            <!-- Column 1 -->
-            <androidx.cardview.widget.CardView
-                app:cardBackgroundColor="#80000000"
-                android:id="@+id/cv1"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                app:cardElevation="3dp"
-                app:cardCornerRadius="20dp"
-                >
+           <androidx.cardview.widget.CardView
+               app:cardBackgroundColor="#80000000"
+               android:id="@+id/cv1"
+               android:layout_width="0dp"
+               android:layout_height="0dp"
+               android:layout_columnWeight="1"
+               android:layout_rowWeight="1"
+               android:layout_marginBottom="16dp"
+               android:layout_marginLeft="16dp"
+               android:layout_marginRight="16dp"
+               app:cardElevation="3dp"
+               app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_gravity="center_horizontal|center_vertical"
@@ -68,13 +52,14 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:src="@drawable/me_time"
+                        android:src="@drawable/google_map_img"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:text="Me"
+                        android:layout_gravity="center"
+                        android:text="Map"
                         android:textAlignment="center"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
@@ -86,7 +71,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Column 2 -->
             <androidx.cardview.widget.CardView
                 app:cardBackgroundColor="#80000000"
                 android:id="@+id/cv2"
@@ -98,8 +82,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 app:cardElevation="3dp"
-                app:cardCornerRadius="20dp"
-                >
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_gravity="center_horizontal|center_vertical"
@@ -109,13 +92,14 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:src="@drawable/family_time"
+                        android:src="@drawable/profile_img"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:text="Family"
+                        android:layout_gravity="center"
+                        android:text="Profile"
                         android:textAlignment="center"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
@@ -127,10 +111,6 @@
 
             </androidx.cardview.widget.CardView>
 
-
-            <!-- Row 2 -->
-
-            <!-- Column 1 -->
             <androidx.cardview.widget.CardView
                 app:cardBackgroundColor="#80000000"
                 android:id="@+id/cv3"
@@ -142,8 +122,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 app:cardElevation="3dp"
-                app:cardCornerRadius="20dp"
-                >
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_gravity="center_horizontal|center_vertical"
@@ -153,16 +132,18 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:src="@drawable/lovely_time"
+                        android:src="@drawable/table_img"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:text="Lovely"
+                        android:layout_gravity="center"
+                        android:text="All Places"
+                        android:textAllCaps="true"
                         android:textAlignment="center"
-                        android:textColor="@android:color/black"
-                        android:textSize="18sp"
+                        android:textColor="@android:color/white"
+                        android:textSize="10dp"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -171,7 +152,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Column 2 -->
             <androidx.cardview.widget.CardView
                 app:cardBackgroundColor="#80000000"
                 android:id="@+id/cv4"
@@ -183,8 +163,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 app:cardElevation="3dp"
-                app:cardCornerRadius="20dp"
-                >
+                app:cardCornerRadius="20dp">
 
                 <LinearLayout
                     android:layout_gravity="center_horizontal|center_vertical"
@@ -194,16 +173,18 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:src="@drawable/team_time"
+                        android:src="@drawable/all_list_img"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
                     <TextView
-                        android:text="Team"
+                        android:layout_gravity="center"
+                        android:text="My Places"
                         android:textAlignment="center"
-                        android:textColor="@android:color/black"
-                        android:textSize="18sp"
+                        android:textColor="@android:color/white"
+                        android:textSize="10dp"
+                        android:textAllCaps="true"
                         android:textStyle="bold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
@@ -212,87 +193,14 @@
 
             </androidx.cardview.widget.CardView>
 
-           <androidx.cardview.widget.CardView
-               app:cardBackgroundColor="#80000000"
-               android:id="@+id/cv5"
-               android:layout_width="0dp"
-               android:layout_height="0dp"
-               android:layout_columnWeight="1"
-               android:layout_rowWeight="1"
-               android:layout_marginBottom="16dp"
-               android:layout_marginLeft="16dp"
-               android:layout_marginRight="16dp"
-               app:cardElevation="3dp"
-               app:cardCornerRadius="20dp"
-               >
-
-               <LinearLayout
-                   android:layout_gravity="center_horizontal|center_vertical"
-                   android:layout_margin="16dp"
-                   android:orientation="vertical"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content">
-
-                   <ImageView
-                       android:src="@drawable/team_time"
-                       android:layout_gravity="center_horizontal"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content" />
-
-                   <TextView
-                       android:text="Team"
-                       android:textAlignment="center"
-                       android:textColor="@android:color/black"
-                       android:textSize="18sp"
-                       android:textStyle="bold"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content" />
-
-               </LinearLayout>
-
-           </androidx.cardview.widget.CardView>
-
-           <androidx.cardview.widget.CardView
-               app:cardBackgroundColor="#80000000"
-               android:id="@+id/cv6"
-               android:layout_width="0dp"
-               android:layout_height="0dp"
-               android:layout_columnWeight="1"
-               android:layout_rowWeight="1"
-               android:layout_marginBottom="16dp"
-               android:layout_marginLeft="16dp"
-               android:layout_marginRight="16dp"
-               app:cardElevation="3dp"
-               app:cardCornerRadius="20dp"
-               >
-
-               <LinearLayout
-                   android:layout_gravity="center_horizontal|center_vertical"
-                   android:layout_margin="16dp"
-                   android:orientation="vertical"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content">
-
-                   <ImageView
-                       android:src="@drawable/team_time"
-                       android:layout_gravity="center_horizontal"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content" />
-
-                   <TextView
-                       android:text="Team"
-                       android:textAlignment="center"
-                       android:textColor="@android:color/black"
-                       android:textSize="18sp"
-                       android:textStyle="bold"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content" />
-
-               </LinearLayout>
-
-           </androidx.cardview.widget.CardView>
-
         </GridLayout>
+
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+        </RelativeLayout>
 
     </LinearLayout>
 

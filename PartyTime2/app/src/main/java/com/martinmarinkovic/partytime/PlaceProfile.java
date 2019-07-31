@@ -35,7 +35,6 @@ public class PlaceProfile extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         int position = -1;
         int activity = 0;
         placeID = null;
@@ -89,7 +88,7 @@ public class PlaceProfile extends AppCompatActivity {
 
         }
 
-        Button startQuiz = (Button) findViewById(R.id.start_quiz);
+        Button startQuiz = (Button) findViewById(R.id.review);
         startQuiz.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

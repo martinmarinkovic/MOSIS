@@ -3,6 +3,7 @@ package com.martinmarinkovic.partytime;
 public class User {
     public String firstname;
     public String lastname;
+    public String username;
     public String image;
     public String userID;
     public String status;
@@ -14,6 +15,16 @@ public class User {
     public User(String firstname, String lastname, String image, String userID, String status, String thumb_image) {
         this.firstname = firstname;
         this.lastname = lastname;
+        this.image = image;
+        this.userID = userID;
+        this.status = status;
+        this.thumb_image = thumb_image;
+    }
+
+    public User(String firstname, String lastname, String username, String image, String userID, String status, String thumb_image) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.username = username;
         this.image = image;
         this.userID = userID;
         this.status = status;
@@ -66,5 +77,13 @@ public class User {
 
     public void setThumb_image(String thumb_image) {
         this.thumb_image = thumb_image;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

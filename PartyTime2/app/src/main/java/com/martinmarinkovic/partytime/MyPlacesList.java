@@ -26,9 +26,12 @@ public class MyPlacesList extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getWindow().setBackgroundDrawableResource(R.drawable.theme);
 
         final ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
+
+        RatingTableAdapter ratingTableAdapter = new RatingTableAdapter(MyPlacesList.this, MyPlacesData.getInstance().getMyPlaces());
+        myPlacesList.setAdapter(ratingTableAdapter);
         myPlacesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

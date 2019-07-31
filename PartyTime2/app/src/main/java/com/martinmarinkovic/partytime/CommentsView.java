@@ -58,6 +58,7 @@ public class CommentsView extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_comments_view);
+        getWindow().setBackgroundDrawableResource(R.drawable.theme3);
 
         mBackArrow = (ImageView) findViewById(R.id.backArrow);
         mCheckMark = (ImageView) findViewById(R.id.ivPostComment);

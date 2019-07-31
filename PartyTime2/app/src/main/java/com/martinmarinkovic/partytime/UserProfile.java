@@ -3,6 +3,7 @@ package com.martinmarinkovic.partytime;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -29,6 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -48,8 +51,8 @@ public class UserProfile extends AppCompatActivity {
     private DatabaseReference mUserDatabase;
     private FirebaseUser mCurrentUser;
     private CircleImageView mDisplayImage;
-    private TextView mName, mStatus;
-    private Button mStatusBtn, mImageBtn;
+    private TextView mName, mStatus, mUsername;
+    private Button mImageBtn, mPlacesList;
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
@@ -60,12 +63,17 @@ public class UserProfile extends AppCompatActivity {
         setContentView(R.layout.activity_user_profile);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+        getSupportActionBar().setTitle("Profile");
 
         mDisplayImage = (CircleImageView) findViewById(R.id.settings_image);
-        mName = (TextView) findViewById(R.id.settings_name);
-        mStatus = (TextView) findViewById(R.id.settings_status);
-        mStatusBtn = (Button) findViewById(R.id.settings_status_btn);
+        mName = (TextView) findViewById(R.id.profile_name);
+        mStatus = (TextView) findViewById(R.id.profile_status);
         mImageBtn = (Button) findViewById(R.id.settings_image_btn);
+        mUsername = (TextView) findViewById(R.id.profile_username);
+        mPlacesList = (Button) findViewById(R.id.show_my_placesBtn);
         mImageStorage = FirebaseStorage.getInstance().getReference();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         String current_uid = mCurrentUser.getUid();
@@ -79,13 +87,14 @@ public class UserProfile extends AppCompatActivity {
                         dataSnapshot.child("lastname").getValue().toString();
                 final String image = dataSnapshot.child("image").getValue().toString();
                 String status = dataSnapshot.child("status").getValue().toString();
-                String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                //String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                String username = dataSnapshot.child("username").getValue().toString();
 
                 mName.setText(name);
                 mStatus.setText(status);
+                mUsername.setText(username);
 
                 if(!image.equals("default")) {
-                    //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
                     Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
                             .placeholder(R.drawable.default_avatar).into(mDisplayImage, new Callback() {
                         @Override
@@ -106,16 +115,6 @@ public class UserProfile extends AppCompatActivity {
             }
         });
 
-        mStatusBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String status_value = mStatus.getText().toString();
-                Intent status_intent = new Intent(UserProfile.this, EditUserProfile.class);
-                status_intent.putExtra("status_value", status_value);
-                startActivity(status_intent);
-            }
-        });
-
         mImageBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,6 +122,14 @@ public class UserProfile extends AppCompatActivity {
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(galleryIntent, "SELECT IMAGE"), GALLERY_PICK);
+            }
+        });
+
+        mPlacesList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(UserProfile.this, AllPlacesList.class);
+                startActivity(i);
             }
         });
     }
@@ -144,7 +151,6 @@ public class UserProfile extends AppCompatActivity {
             CropImage.ActivityResult result = CropImage.getActivityResult(data); // resulztat je iseecena slika, uzimamo ono sto smo isekli
 
             if (resultCode == RESULT_OK) {
-
                 mProgressDialog = new ProgressDialog(UserProfile.this);
                 mProgressDialog.setTitle("Uploading Image...");
                 mProgressDialog.setMessage("Please wait while we upload and process the image.");
@@ -220,6 +226,27 @@ public class UserProfile extends AppCompatActivity {
                 Exception error = result.getError();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_user_profile, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.settings) {
+            String status_value = mStatus.getText().toString();
+            String username_value = mUsername.getText().toString();
+            Intent settings_intent = new Intent(UserProfile.this, EditUserProfile.class);
+            settings_intent.putExtra("status_value", status_value);
+            settings_intent.putExtra("username_value", username_value);
+            startActivity(settings_intent);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

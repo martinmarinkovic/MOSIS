@@ -13,10 +13,10 @@
             android:shape="rectangle">
             <stroke
                 android:width="2dp"
-                android:color="@color/black">
+                android:color="@color/white">
             </stroke>
             <solid
-                android:color="@color/darkGray">
+                android:color="@color/black">
             </solid>
         </shape>
 

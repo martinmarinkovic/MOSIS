@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="1dp">
+android:layout_width="match_parent"
+android:layout_height="1dp">
 
-    <item
-        android:bottom="2dp"
-        android:top="-2dp"
-        android:right="-2dp"
-        android:left="-2dp">
+<item
+    android:bottom="2dp"
+    android:top="-2dp"
+    android:right="-2dp"
+    android:left="-2dp">
 
-        <shape
-            android:shape="rectangle">
-            <stroke
-                android:width="2dp"
-                android:color="@color/black">
-            </stroke>
-            <solid
-                android:color="@color/darkGray">
-            </solid>
-        </shape>
+    <shape
+        android:shape="rectangle">
+        <stroke
+            android:width="2dp"
+            android:color="@color/white">
+        </stroke>
+        <solid
+            android:color="#80000000">
+        </solid>
+    </shape>
 
-    </item>
+</item>
 
 </layer-list>

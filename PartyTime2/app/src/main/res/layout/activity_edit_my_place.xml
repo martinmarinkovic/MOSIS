@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".EditMyPlace"
+    android:background="@drawable/profiles"
     tools:showIn="@layout/activity_edit_my_place"
     android:orientation="vertical">
 
@@ -24,48 +25,81 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <TextView
+    <LinearLayout
+        android:layout_margin="30dp"
+        android:padding="10dp"
+        android:background="#ABffffff"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/editmyplace_name_label"/>
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/editmyplace_name_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/editmyplace_desc_label"/>
-
-    <EditText
-        android:id="@+id/editmyplace_desc_edit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <TableLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:stretchColumns="*">
-        <TableRow
+        <TextView
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/editmyplace_finished_button"
-                android:layout_weight="1"/>
-            <Button
-                android:id="@+id/editmyplace_cancel_button"
-                android:layout_weight="1"
-                android:text="@string/editmyplace_cancel_label"/>
+            android:layout_height="wrap_content"
+            android:text="@string/editmyplace_name_label"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textColorHint="@color/black"/>
 
-            <Button
-                android:id="@+id/editmyplace_change_image_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="CHANGE IMAGE"/>
-        </TableRow>
-    </TableLayout>
-</LinearLayout>
+        <EditText
+            android:id="@+id/editmyplace_name_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textColorHint="@color/black"
+            android:backgroundTint="@color/black"/>
+
+        <TextView
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/editmyplace_desc_label"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textColorHint="@color/black"/>
+
+        <EditText
+            android:id="@+id/editmyplace_desc_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textColorHint="@color/black"
+            android:backgroundTint="@color/black"/>
+
+        <Button
+            android:id="@+id/editmyplace_change_image_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#E67B61"
+            android:text="CHANGE IMAGE"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+
+        <Button
+            android:id="@+id/editmyplace_finished_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#E67B61"
+            android:text="SAVE"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+        <Button
+            android:id="@+id/editmyplace_cancel_button"
+            android:text="@string/editmyplace_cancel_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#E67B61"
+            android:textStyle="bold"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
