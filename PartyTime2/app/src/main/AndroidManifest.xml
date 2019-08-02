@@ -29,12 +29,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RatingBarActivity"></activity>
+        <activity
+            android:name=".FriendsList"
+            android:label="@string/title_activity_friends_list"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.martinmarinkovic.partytime.MainActivity" />
+        </activity>
+        <activity android:name=".SearchPlaces" />
+        <activity android:name=".RatingBarActivity" />
         <activity android:name=".AddNewFriend" />
         <activity android:name=".CommentsView" />
         <activity android:name=".AddMyPlacePhoto" />
-        <activity android:name=".AllPlacesList"
-            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".AllPlacesList"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".About" />
         <activity
             android:name=".MainActivity"
@@ -42,13 +53,13 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".EditUserProfile"
-            android:parentActivityName=".UserProfile"
             android:label="@string/title_activity_edit_user_profile"
+            android:parentActivityName=".UserProfile"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".UserProfile"
-            android:parentActivityName=".MainActivity"
             android:label="@string/title_activity_user_profile"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".EditMyPlace" />
         <!--

@@ -23,6 +23,7 @@
             app:srcCompat="@mipmap/ic_launcher" />
 
         <LinearLayout
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -68,7 +69,7 @@
                 android:id="@+id/btn_login"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="#e69573"
+                android:background="#E67B61"
                 android:text="@string/btn_login"
                 android:textColor="@android:color/black"
                 android:textStyle="bold" />

@@ -16,7 +16,7 @@ android:layout_height="1dp">
             android:color="@color/white">
         </stroke>
         <solid
-            android:color="#80000000">
+            android:color="#B3000000">
         </solid>
     </shape>
 

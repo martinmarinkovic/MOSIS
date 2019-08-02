@@ -56,6 +56,7 @@ public class UserProfile extends AppCompatActivity {
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
+    private String userID, current_uid, activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,16 @@ public class UserProfile extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
         getSupportActionBar().setTitle("Profile");
 
+        try {
+            Intent listIntent = getIntent();
+            Bundle positionBundle = listIntent.getExtras();
+            userID = positionBundle.getString("userID");
+            activity = positionBundle.getString("activity");
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         mDisplayImage = (CircleImageView) findViewById(R.id.settings_image);
         mName = (TextView) findViewById(R.id.profile_name);
         mStatus = (TextView) findViewById(R.id.profile_status);
@@ -76,7 +87,12 @@ public class UserProfile extends AppCompatActivity {
         mPlacesList = (Button) findViewById(R.id.show_my_placesBtn);
         mImageStorage = FirebaseStorage.getInstance().getReference();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String current_uid = mCurrentUser.getUid();
+
+        if (activity.equals("FriendsList"))
+            current_uid = userID;
+        else if(activity.equals("Main"))
+            current_uid = mCurrentUser.getUid();
+
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
         mUserDatabase.keepSynced(true);
         mUserDatabase.addValueEventListener(new ValueEventListener() {

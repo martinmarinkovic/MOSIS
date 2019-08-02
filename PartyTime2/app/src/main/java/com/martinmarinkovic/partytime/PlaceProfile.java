@@ -88,8 +88,22 @@ public class PlaceProfile extends AppCompatActivity {
 
         }
 
-        Button startQuiz = (Button) findViewById(R.id.review);
-        startQuiz.setOnClickListener(new View.OnClickListener() {
+        Button showOnMap = (Button) findViewById(R.id.map);
+        final int finalPosition = position;
+        showOnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(PlaceProfile.this, GoogleMapsActivity.class);
+                i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
+                MyPlace place = MyPlacesData.getInstance().getPlace(finalPosition);
+                i.putExtra("lat", place.getLatitude());
+                i.putExtra("lon", place.getLongitude());
+                startActivity(i);
+            }
+        });
+
+        Button review = (Button) findViewById(R.id.review);
+        review.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (placeID != null) {

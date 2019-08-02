@@ -32,7 +32,7 @@
            android:padding="20dp">
 
            <androidx.cardview.widget.CardView
-               app:cardBackgroundColor="#80000000"
+               app:cardBackgroundColor="#ab000000"
                android:id="@+id/cv1"
                android:layout_width="0dp"
                android:layout_height="0dp"
@@ -57,22 +57,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_gravity="center"
-                        android:text="Map"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                app:cardBackgroundColor="#80000000"
+                app:cardBackgroundColor="#ab000000"
                 android:id="@+id/cv2"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -97,22 +87,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_gravity="center"
-                        android:text="Profile"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                app:cardBackgroundColor="#80000000"
+                app:cardBackgroundColor="#ab000000"
                 android:id="@+id/cv3"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -137,23 +117,12 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_gravity="center"
-                        android:text="All Places"
-                        android:textAllCaps="true"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="10dp"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
-                app:cardBackgroundColor="#80000000"
+                app:cardBackgroundColor="#ab000000"
                 android:id="@+id/cv4"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -173,21 +142,11 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:src="@drawable/all_list_img"
+                        android:src="@drawable/friends_list_img"
                         android:layout_gravity="center_horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
 
-                    <TextView
-                        android:layout_gravity="center"
-                        android:text="My Places"
-                        android:textAlignment="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="10dp"
-                        android:textAllCaps="true"
-                        android:textStyle="bold"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
 
                 </LinearLayout>
 

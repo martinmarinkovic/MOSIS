@@ -44,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
         cv2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("friendID", "");
+                bundle.putString("activity", "Main");
                 Intent i = new Intent(MainActivity.this, UserProfile.class);
+                i.putExtras(bundle);
                 startActivity(i);
             }
         });
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         cv4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(MainActivity.this, AllPlacesList.class);
+                Intent i = new Intent(MainActivity.this, FriendsList.class);
                 startActivity(i);
             }
         });
@@ -80,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.add_new_friend) {
             Intent i = new Intent(this, AddNewFriend.class);
+            startActivity(i);
+        } else if (id == R.id.my_places_list) {
+            Intent i = new Intent(this, AllPlacesList.class);
             startActivity(i);
         } else if (id == R.id.about) {
             Intent i = new Intent(this, About.class);

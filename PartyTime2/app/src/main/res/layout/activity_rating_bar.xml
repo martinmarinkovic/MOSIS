@@ -1,36 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/profiles"
     tools:context=".RatingBarActivity">
 
-    <RatingBar
+    <RelativeLayout
+        android:background="#80000000"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/ImageRatingBar"
-        android:id="@+id/rate"
-        android:stepSize="1"
-        android:numStars="5"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"/>
+        android:layout_margin="20dp"
+        android:padding="10dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="40dp"
-        android:textColor="#000"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:id="@+id/tv"/>
+        <TextView
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:id="@+id/tv2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="How would you rate this place?"
+            android:textSize="22dp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp" />
 
-    <Button
-        android:id="@+id/user_rating"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OK"/>
+        <RatingBar
+            android:layout_marginTop="20dp"
+            android:layout_centerInParent="true"
+            android:layout_below="@+id/tv2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/ImageRatingBar"
+            android:id="@+id/rate"
+            android:stepSize="1"
+            android:numStars="5"/>
 
-</LinearLayout>
+        <TextView
+            android:layout_centerInParent="true"
+            android:layout_below="@+id/rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:textSize="35dp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:layout_marginTop="10dp"
+            android:id="@+id/tv"/>
+
+        <Button
+            android:backgroundTint="#E67B61"
+            android:layout_marginTop="20dp"
+            android:layout_below="@+id/tv"
+            android:id="@+id/user_rating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="RATE"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

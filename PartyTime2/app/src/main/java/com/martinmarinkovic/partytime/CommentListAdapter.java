@@ -72,6 +72,21 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
                 for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
                     username.setText( singleSnapshot.getValue(User.class).getFirstname());
                     image = singleSnapshot.getValue(User.class).getImage().toString();
+
+                    if (!image.equals("default")) {
+                        //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
+                        Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
+                                .placeholder(R.drawable.default_avatar).into(profileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
+                            }
+                        });
+                    }
                 }
             }
 
@@ -85,25 +100,6 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
             timestamp.setText(timestampDifference + " days ago");
         }else{
             timestamp.setText("today");
-        }
-
-        try { //nije dobro!!! Koci ocitavanje!!!
-            if (!image.equals("default")) {
-                //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
-                Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                        .placeholder(R.drawable.default_avatar).into(profileImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
-                    }
-                });
-            }
-        }catch (NullPointerException e){
-            e.printStackTrace();
         }
 
         return listView;
