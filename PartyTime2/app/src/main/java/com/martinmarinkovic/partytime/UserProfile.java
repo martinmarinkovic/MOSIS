@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -88,10 +89,13 @@ public class UserProfile extends AppCompatActivity {
         mImageStorage = FirebaseStorage.getInstance().getReference();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (activity.equals("FriendsList"))
+        if (activity.equals("FriendsList")) {
             current_uid = userID;
-        else if(activity.equals("Main"))
+            mImageBtn.setVisibility(View.INVISIBLE);
+        }
+        else if(activity.equals("Main")) {
             current_uid = mCurrentUser.getUid();
+        }
 
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
         mUserDatabase.keepSynced(true);
@@ -144,7 +148,11 @@ public class UserProfile extends AppCompatActivity {
         mPlacesList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("userID", current_uid);
+                Toast.makeText(UserProfile.this, current_uid, Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(UserProfile.this, AllPlacesList.class);
+                i.putExtras(bundle);
                 startActivity(i);
             }
         });
@@ -195,47 +203,29 @@ public class UserProfile extends AppCompatActivity {
                 final StorageReference filepath = mImageStorage.child("profile_images").child(current_user_id + ".jpg");
                 final StorageReference thumb_filepath = mImageStorage.child("profile_images").child("thumbs").child(current_user_id + ".jpg");
 
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        if(task.isSuccessful()){
+                        //String thumb_downloadUrl = taskSnapshot.getDownloadUrl().toString();
 
-                            //final String download_url = task.getResult().getMetadata().getReference().getDownloadUrl().toString(); //losa nova funkcija, los link ubacuje u bazu za sliku!!!
-                            final String download_url = resultUri.toString();
-                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
-                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> thumb_task) {
-
-                                    //String thumb_downloadUrl = thumb_task.getResult().getMetadata().getReference().getDownloadUrl().toString();
-                                    String thumb_downloadUrl = resultUri.toString();
-                                    if(thumb_task.isSuccessful()){
-                                        Map update_hashMap = new HashMap();
-                                        update_hashMap.put("image", download_url);
-                                        update_hashMap.put("thumb_image", thumb_downloadUrl);
-
-                                        mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if(task.isSuccessful()){
-                                                    mProgressDialog.dismiss();
-                                                    Toast.makeText(UserProfile.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-                                                }
-                                            }
-                                        });
-                                    } else {
-
-                                        Toast.makeText(UserProfile.this, "Error in uploading thumbnail.", Toast.LENGTH_LONG).show();
-                                        mProgressDialog.dismiss();
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Map update_hashMap = new HashMap();
+                                update_hashMap.put("image", uri.toString());
+                                //update_hashMap.put("thumb_image", thumb_downloadUrl);
+                                mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(UserProfile.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
-                                }
-                            });
-                        } else {
-
-                            Toast.makeText(UserProfile.this, "Error in uploading.", Toast.LENGTH_LONG).show();
-                            mProgressDialog.dismiss();
-                        }
+                                });
+                            }
+                        });
                     }
                 });
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
@@ -246,8 +236,11 @@ public class UserProfile extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_user_profile, menu);
-        return true;
+        if (activity.equals("Main")) {
+            getMenuInflater().inflate(R.menu.menu_user_profile, menu);
+            return true;
+        }
+        else return false;
     }
 
     @Override

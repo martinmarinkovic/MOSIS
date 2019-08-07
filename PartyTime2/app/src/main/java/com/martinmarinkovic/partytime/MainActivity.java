@@ -1,11 +1,14 @@
 package com.martinmarinkovic.partytime;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -19,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
     private CardView cv1, cv2, cv3, cv4;
+    private FirebaseUser mCurrentUser;
+    private ProgressDialog mProgress;
+    private String current_uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
         getSupportActionBar().setTitle("Party Time");
         auth = FirebaseAuth.getInstance();
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        current_uid = mCurrentUser.getUid();
 
         cv1 = (CardView) findViewById(R.id.cv1);
         cv1.setOnClickListener(new View.OnClickListener() {
@@ -86,7 +94,10 @@ public class MainActivity extends AppCompatActivity {
             Intent i = new Intent(this, AddNewFriend.class);
             startActivity(i);
         } else if (id == R.id.my_places_list) {
-            Intent i = new Intent(this, AllPlacesList.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("userID", current_uid);
+            Intent i = new Intent(MainActivity.this, AllPlacesList.class);
+            i.putExtras(bundle);
             startActivity(i);
         } else if (id == R.id.about) {
             Intent i = new Intent(this, About.class);

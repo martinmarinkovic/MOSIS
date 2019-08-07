@@ -24,9 +24,10 @@ import com.squareup.picasso.Picasso;
 public class PlaceProfile extends AppCompatActivity {
 
     private String placeID;
-    private float rating;
+    private float rating, ratingsSum;
     private DatabaseReference myRef;
     private FirebaseUser mCurrentUser;
+    private int numOfRatings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,6 @@ public class PlaceProfile extends AppCompatActivity {
             Bundle positionBundle = listIntent.getExtras();
             position = positionBundle.getInt("position");
             activity = positionBundle.getInt("activity");
-            //placeID = positionBundle.getString("placeID");
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
@@ -64,6 +64,8 @@ public class PlaceProfile extends AppCompatActivity {
 
             placeID = place.getKey();
             rating = place.getRating();
+            numOfRatings = place.getNumOfRatings();
+            ratingsSum = place.getRatingsSum();
 
             TextView twName = (TextView) findViewById(R.id.my_place_name);
             twName.setText(place.getName());
@@ -73,15 +75,17 @@ public class PlaceProfile extends AppCompatActivity {
             final String image = place.getImage().toString();
 
             if (!image.equals("default")) {
+                Toast.makeText(PlaceProfile.this, image + "UCITAOOO!", Toast.LENGTH_SHORT).show();
                 Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                        .placeholder(R.drawable.default_avatar).into(displayImage, new Callback() {
+                        .placeholder(R.drawable.image_placeholder).into(displayImage, new Callback() {
                     @Override
                     public void onSuccess() {
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(displayImage);
+                        Toast.makeText(PlaceProfile.this, "GRESKAAAAAA ???????????????????????????????????????", Toast.LENGTH_SHORT).show();
+                        Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(displayImage);
                     }
                 });
             }
@@ -139,21 +143,39 @@ public class PlaceProfile extends AppCompatActivity {
                     //String result = data.getStringExtra("userRating");
                     float result = data.getFloatExtra("userRatingInt", 0);
                     Toast.makeText(PlaceProfile.this, result +"", Toast.LENGTH_SHORT).show();
-
                     String current_uid = mCurrentUser.getUid();
+                    numOfRatings++;
+                    ratingsSum = ratingsSum + result;
+                    rating = ratingsSum / numOfRatings;
 
                     myRef.child("my-places")
                             .child(placeID)
-                            .child("rating")
-                            .setValue(result);
+                            .child("numOfRatings")
+                            .setValue(numOfRatings);
 
-                    myRef.child("Users")
+                    myRef.child("my-places")
+                            .child(placeID)
+                            .child("ratingsSum")
+                            .setValue(ratingsSum);
+
+                    if(rating == 0) {
+                        myRef.child("my-places")
+                                .child(placeID)
+                                .child("rating")
+                                .setValue(result);
+                    } else {
+                        myRef.child("my-places")
+                                .child(placeID)
+                                .child("rating")
+                                .setValue(rating);
+                    }
+
+                    /*myRef.child("Users")
                             .child(current_uid)
                             .child("my-places")
                             .child(placeID)
                             .child("rating")
-                            .setValue(result);
-
+                            .setValue(result);*/
                 }
                 if (resultCode == RESULT_CANCELED) {
                     //Write your code if there's no result

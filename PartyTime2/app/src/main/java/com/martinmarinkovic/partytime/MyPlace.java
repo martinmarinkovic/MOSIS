@@ -12,6 +12,8 @@ public class MyPlace {
     public String latitude;
     public String image;
     public float rating;
+    public int numOfRatings;
+    public float ratingsSum;
     @Exclude
     public String key;
 
@@ -22,6 +24,8 @@ public class MyPlace {
         this.description = description;
         this.image = image;
         this.rating = rating;
+        this.numOfRatings = 0;
+        this.ratingsSum = 0;
     }
 
     public MyPlace(String name, String description, String image) {
@@ -98,5 +102,21 @@ public class MyPlace {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public int getNumOfRatings() {
+        return numOfRatings;
+    }
+
+    public void setNumOfRatings(int numOfRatings) {
+        this.numOfRatings = numOfRatings;
+    }
+
+    public float getRatingsSum() {
+        return ratingsSum;
+    }
+
+    public void setRatingsSum(float ratingsSum) {
+        this.ratingsSum = ratingsSum;
     }
 }

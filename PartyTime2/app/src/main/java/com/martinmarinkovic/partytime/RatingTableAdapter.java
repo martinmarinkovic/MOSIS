@@ -54,14 +54,14 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
         try { //nije dobro!!! Koci ocitavanje!!!
             if (!image.equals("default")) {
                 Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                        .placeholder(R.drawable.default_avatar).into(place_profile_image, new Callback() {
+                        .placeholder(R.drawable.image_placeholder).into(place_profile_image, new Callback() {
                     @Override
                     public void onSuccess() {
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(place_profile_image);
+                        Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(place_profile_image);
                     }
                 });
             }

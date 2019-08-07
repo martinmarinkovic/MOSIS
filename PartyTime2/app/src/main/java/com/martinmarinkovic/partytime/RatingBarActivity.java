@@ -18,7 +18,7 @@ public class RatingBarActivity extends AppCompatActivity {
     private TextView tv;
     private Button ratingBtn;
     private float rating;
-    String userRating;
+    public String userRating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -38,7 +38,7 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
     private static final String TAG = "MainActivity";
 
     private DatabaseReference databaseReference;
-    private FirebaseUser mCurrentUser;
+    private FirebaseUser mCurrentUser =  FirebaseAuth.getInstance().getCurrentUser();
     BluetoothAdapter mBluetoothAdapter;
     Button btnEnableDisable_Discoverable;
     BluetoothConnectionService mBluetoothConnection;
@@ -113,11 +113,9 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
                         Log.d(TAG, "mBroadcastReceiver2: Connected.");
                         break;
                 }
-
             }
         }
     };
-
 
     /**
      * Broadcast Receiver for listing devices that are not yet paired
@@ -173,30 +171,35 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: called.");
         super.onDestroy();
-        unregisterReceiver(mBroadcastReceiver1);
-        unregisterReceiver(mBroadcastReceiver2);
-        unregisterReceiver(mBroadcastReceiver3);
-        unregisterReceiver(mBroadcastReceiver4);
+
+        try {
+            unregisterReceiver(mBroadcastReceiver1);
+            unregisterReceiver(mBroadcastReceiver2);
+            unregisterReceiver(mBroadcastReceiver3);
+            unregisterReceiver(mBroadcastReceiver4);
+        }
+        catch (Exception e){}
         //mBluetoothAdapter.cancelDiscovery();
     }
+
+    final String current_uid = mCurrentUser.getUid();
+    final byte[] userID = current_uid.getBytes(Charset.defaultCharset());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_new_friend);
-        Button btnONOFF = (Button) findViewById(R.id.btnONOFF);
-        btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
+        //Button btnONOFF = (Button) findViewById(R.id.btnONOFF);
+        //btnEnableDisable_Discoverable = (Button) findViewById(R.id.btnDiscoverable_on_off);
         lvNewDevices = (ListView) findViewById(R.id.lvNewDevices);
         mBTDevices = new ArrayList<>();
 
-        btnStartConnection = (Button) findViewById(R.id.btnStartConnection);
+        //btnStartConnection = (Button) findViewById(R.id.btnStartConnection);
         btnSend = (Button) findViewById(R.id.btnSend);
-        etSend = (EditText) findViewById(R.id.editText);
+        //etSend = (EditText) findViewById(R.id.editText);
         addBtn = (Button) findViewById(R.id.dugme);
+        addBtn.setVisibility(View.INVISIBLE);
 
-        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String current_uid = mCurrentUser.getUid();
-        final byte[] userID = current_uid.getBytes(Charset.defaultCharset());
         databaseReference = FirebaseDatabase.getInstance().getReference().child("Users");
 
         //Broadcasts when bond state changes (ie:pairing)
@@ -205,10 +208,37 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
+
+        IntentFilter intentFilter = new IntentFilter(mBluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        registerReceiver(mBroadcastReceiver2,intentFilter);
+
+        if(mBluetoothAdapter.isDiscovering()){
+            mBluetoothAdapter.cancelDiscovery();
+            Log.d(TAG, "btnDiscover: Canceling discovery.");
+
+            //check BT permissions in manifest
+            checkBTPermissions();
+
+            mBluetoothAdapter.startDiscovery();
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
+        }
+        if(!mBluetoothAdapter.isDiscovering()){
+
+            //check BT permissions in manifest
+            checkBTPermissions();
+
+            mBluetoothAdapter.startDiscovery();
+            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
+        }
+
         lvNewDevices.setOnItemClickListener(AddNewFriend.this);
 
-
-        btnONOFF.setOnClickListener(new View.OnClickListener() {
+       /* btnONOFF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: enabling/disabling bluetooth.");
@@ -221,17 +251,20 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
                 startConnection();
             }
-        });
+        });*/
 
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 //byte[] bytes = etSend.getText().toString().getBytes(Charset.defaultCharset());
                 //mBluetoothConnection.write(bytes);
                 Toast.makeText(AddNewFriend.this, userID.toString(), Toast.LENGTH_SHORT).show();
                 mBluetoothConnection.write(userID);
+                addBtn.setVisibility(View.VISIBLE);
             }
         });
+
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -278,67 +311,6 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
         mBluetoothConnection.startClient(device, uuid);
     }
 
-
-
-    public void enableDisableBT(){
-        if(mBluetoothAdapter == null){
-            Log.d(TAG, "enableDisableBT: Does not have BT capabilities.");
-        }
-        if(!mBluetoothAdapter.isEnabled()){
-            Log.d(TAG, "enableDisableBT: enabling BT.");
-            Intent enableBTIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableBTIntent);
-
-            IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(mBroadcastReceiver1, BTIntent);
-        }
-        if(mBluetoothAdapter.isEnabled()){
-            Log.d(TAG, "enableDisableBT: disabling BT.");
-            mBluetoothAdapter.disable();
-
-            IntentFilter BTIntent = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(mBroadcastReceiver1, BTIntent);
-        }
-    }
-
-
-    public void btnEnableDisable_Discoverable(View view) {
-        Log.d(TAG, "btnEnableDisable_Discoverable: Making device discoverable for 300 seconds.");
-
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
-
-        IntentFilter intentFilter = new IntentFilter(mBluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-        registerReceiver(mBroadcastReceiver2,intentFilter);
-
-    }
-
-    public void btnDiscover(View view) {
-        Log.d(TAG, "btnDiscover: Looking for unpaired devices.");
-
-        if(mBluetoothAdapter.isDiscovering()){
-            mBluetoothAdapter.cancelDiscovery();
-            Log.d(TAG, "btnDiscover: Canceling discovery.");
-
-            //check BT permissions in manifest
-            checkBTPermissions();
-
-            mBluetoothAdapter.startDiscovery();
-            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
-        }
-        if(!mBluetoothAdapter.isDiscovering()){
-
-            //check BT permissions in manifest
-            checkBTPermissions();
-
-            mBluetoothAdapter.startDiscovery();
-            IntentFilter discoverDevicesIntent = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(mBroadcastReceiver3, discoverDevicesIntent);
-        }
-    }
-
     /**
      * This method is required for all devices running API23+
      * Android must programmatically check the permissions for bluetooth. Putting the proper permissions
@@ -381,5 +353,7 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
             mBTDevice = mBTDevices.get(i);
             mBluetoothConnection = new BluetoothConnectionService(AddNewFriend.this);
         }
+
+        startConnection();
     }
 }

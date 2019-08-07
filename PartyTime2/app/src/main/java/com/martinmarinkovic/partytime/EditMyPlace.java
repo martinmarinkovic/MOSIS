@@ -8,17 +8,21 @@ import androidx.appcompat.widget.Toolbar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -29,8 +33,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import id.zelory.compressor.Compressor;
 
 public class EditMyPlace extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,7 +61,7 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
             Intent listIntent = getIntent();
             Bundle positionBundle = listIntent.getExtras();
 
-            if (positionBundle != null){
+            if (positionBundle != null) {
                 position = positionBundle.getInt("position");
                 MyPlace place = AllPlacesData.getInstance().getPlace(position);
                 placeID = place.getID();
@@ -62,8 +71,7 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                 mPlaceDatabase = FirebaseDatabase.getInstance().getReference().child("my-places").child(placeID);
                 mUserDatabase.keepSynced(true);
                 mPlaceDatabase.keepSynced(true);
-            }
-            else {
+            } else {
                 editMode = false;
                 placeID = null;
             }
@@ -79,15 +87,15 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         setTitle("Edit place");
 
-        final Button buttonFinished = (Button)findViewById(R.id.editmyplace_finished_button);
-        Button cancelButton = (Button)findViewById(R.id.editmyplace_cancel_button);
-        EditText nameEditText = (EditText)findViewById(R.id.editmyplace_name_edit);
+        final Button buttonFinished = (Button) findViewById(R.id.editmyplace_finished_button);
+        Button cancelButton = (Button) findViewById(R.id.editmyplace_cancel_button);
+        EditText nameEditText = (EditText) findViewById(R.id.editmyplace_name_edit);
 
         if (position >= 0) {
             buttonFinished.setText("Save");
             MyPlace place = AllPlacesData.getInstance().getPlace(position);
             nameEditText.setText(place.getName());
-            EditText descEditText = (EditText)findViewById(R.id.editmyplace_desc_edit);
+            EditText descEditText = (EditText) findViewById(R.id.editmyplace_desc_edit);
             descEditText.setText(place.getDescription());
         }
 
@@ -126,9 +134,9 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
 
         switch (v.getId()) {
             case R.id.editmyplace_finished_button: {
-                EditText etName = (EditText)findViewById(R.id.editmyplace_name_edit);
+                EditText etName = (EditText) findViewById(R.id.editmyplace_name_edit);
                 String name = etName.getText().toString();
-                EditText etDesc = (EditText)findViewById(R.id.editmyplace_desc_edit);
+                EditText etDesc = (EditText) findViewById(R.id.editmyplace_desc_edit);
                 String desc = etDesc.getText().toString();
 
                 AllPlacesData.getInstance().updatePlace(position, name, desc);
@@ -160,11 +168,9 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
             CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
             if (resultCode == RESULT_OK) {
-
                 mProgressDialog = new ProgressDialog(EditMyPlace.this);
                 mProgressDialog.setTitle("Uploading Image...");
                 mProgressDialog.setMessage("Please wait while we upload and process the image.");
@@ -172,44 +178,63 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                 mProgressDialog.show();
 
                 final Uri resultUri = result.getUri();
+                File thumb_filePath = new File(resultUri.getPath());
+                Bitmap thumb_bitmap = null;
+
+                try {
+                    thumb_bitmap = new Compressor(this)
+                            .setMaxWidth(200)
+                            .setMaxHeight(200)
+                            .setQuality(75)
+                            .compressToBitmap(thumb_filePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                final byte[] thumb_byte = baos.toByteArray();
+
                 final StorageReference filepath = mImageStorage.child("places_profile_images").child(placeID + ".jpg");
+                final StorageReference thumb_filepath = mImageStorage.child("places_profile_images").child("thumbs").child(placeID + ".jpg");
 
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        if(task.isSuccessful()){
-                            final String download_url = resultUri.toString();
-                            Map update_hashMap = new HashMap();
-                            update_hashMap.put("image", download_url);
-                            mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        mProgressDialog.dismiss();
-                                        Toast.makeText(EditMyPlace.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                        //String thumb_downloadUrl = taskSnapshot.getDownloadUrl().toString();
+
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Map update_hashMap = new HashMap();
+                                update_hashMap.put("image", uri.toString());
+                                //update_hashMap.put("thumb_image", thumb_downloadUrl);
+                                mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(EditMyPlace.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
 
-                            mPlaceDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        mProgressDialog.dismiss();
-                                        Toast.makeText(EditMyPlace.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                mPlaceDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(EditMyPlace.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
-                                }
-                            });
-
-                        }else{
-                            Toast.makeText(EditMyPlace.this, "Error in uploading.", Toast.LENGTH_LONG).show();
-                            mProgressDialog.dismiss();
-                        }
+                                });
+                            }
+                        });
                     }
                 });
-            }
-            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
         }

@@ -9,6 +9,9 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,14 +23,18 @@ public class BluetoothConnectionService {
     private static final String appName = "MYAPP";
     private static final UUID MY_UUID_INSECURE = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66"); //adresa preko koje se uredjaji povezuju
     private final BluetoothAdapter mBluetoothAdapter;
+    private FirebaseUser mCurrentUser =  FirebaseAuth.getInstance().getCurrentUser();
     public Context mContext;
     private AcceptThread mInsecureAcceptThread;
     private ConnectThread mConnectThread;
     private BluetoothDevice mmDevice;
     private UUID deviceUUID;
     private ProgressDialog mProgressDialog;
-    private ConnectedThread mConnectedThread;
+    public ConnectedThread mConnectedThread;
     private String friendID;
+
+    final String current_uid = mCurrentUser.getUid();
+    final byte[] userID = current_uid.getBytes(Charset.defaultCharset());
 
     public BluetoothConnectionService(Context context) {
         mContext = context;

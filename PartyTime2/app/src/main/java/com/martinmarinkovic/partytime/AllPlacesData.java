@@ -21,12 +21,14 @@ public class AllPlacesData {
     private HashMap<String, Integer> myPlacesKeyIndexMapping;
     private DatabaseReference database;
     private FirebaseUser mCurrentUser;
+    static public String current_uid;
 
-    private AllPlacesData() {
+    public AllPlacesData(String userID) {
         myPlaces = new ArrayList<MyPlace>();
         myPlacesKeyIndexMapping = new HashMap<String, Integer>();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String current_uid = mCurrentUser.getUid();
+        //current_uid = mCurrentUser.getUid();
+        current_uid = userID;
         database = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid).child("my-places");
         database.addChildEventListener(childEventListener);
         database.addListenerForSingleValueEvent(parentEventListener);
@@ -98,7 +100,7 @@ public class AllPlacesData {
     };
 
     private static class SingletonHolder {
-        public static final AllPlacesData instance = new AllPlacesData();
+        public static final AllPlacesData instance = new AllPlacesData(current_uid);
     }
 
     public static AllPlacesData getInstance() {
@@ -164,5 +166,9 @@ public class AllPlacesData {
 
     public interface ListUpdatedEventListener {
         void onListUpdated();
+    }
+
+    public void setCurrentUserID(String userID){
+        current_uid = userID;
     }
 }

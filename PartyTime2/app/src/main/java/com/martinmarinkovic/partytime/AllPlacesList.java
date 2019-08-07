@@ -12,10 +12,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class AllPlacesList extends AppCompatActivity {
 
-    public String placeID;
+    public String placeID, userID, activity;
+    public AllPlacesData allPlacesData;
+    public List<MyPlace> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +32,42 @@ public class AllPlacesList extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        try {
+            Intent listIntent = getIntent();
+            Bundle userBundle = listIntent.getExtras();
+            userID = userBundle.getString("userID");
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        allPlacesData = new AllPlacesData(userID);
+        //list = allPlacesData.getInstance().getMyPlaces();
+        populateListView(allPlacesData.getInstance().getMyPlaces());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        //list.clear();
+
+        try {
+            Intent listIntent = getIntent();
+            Bundle userBundle = listIntent.getExtras();
+            userID = userBundle.getString("userID");
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        allPlacesData = new AllPlacesData(userID);
+        populateListView(allPlacesData.getInstance().getMyPlaces());
+    }
+
+    public void populateListView(List<MyPlace> list){
         final ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, AllPlacesData.getInstance().getMyPlaces()));
+        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, list));
         myPlacesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -45,7 +84,7 @@ public class AllPlacesList extends AppCompatActivity {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-                MyPlace place = AllPlacesData.getInstance().getPlace(info.position);
+                MyPlace place = allPlacesData.getInstance().getPlace(info.position);
                 menu.setHeaderTitle(place.getName());
                 menu.add(0, 1, 1, "View place");
                 menu.add(0, 2, 2, "Edit place");
@@ -58,7 +97,7 @@ public class AllPlacesList extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        MyPlace myplace = AllPlacesData.getInstance().getPlace(info.position);
+        MyPlace myplace = allPlacesData.getInstance().getPlace(info.position);
         placeID = myplace.getID();
         Bundle positionBundle = new Bundle();
         positionBundle.putInt("position", info.position);
@@ -73,13 +112,13 @@ public class AllPlacesList extends AppCompatActivity {
             i.putExtras(positionBundle);
             startActivityForResult(i, 1);
         } else if (item.getItemId() == 3) {
-            AllPlacesData.getInstance().deletePlace(info.position);
+            allPlacesData.getInstance().deletePlace(info.position);
             MyPlacesData.getInstance().deletePlace(placeID);//??????????????
             setList();
         } else if (item.getItemId() == 4) {
             i = new Intent(this, GoogleMapsActivity.class);
             i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
-            MyPlace place = AllPlacesData.getInstance().getPlace(info.position);
+            MyPlace place = allPlacesData.getInstance().getPlace(info.position);
             i.putExtra("lat", place.getLatitude());
             i.putExtra("lon", place.getLongitude());
             startActivityForResult(i, 2);
@@ -97,6 +136,6 @@ public class AllPlacesList extends AppCompatActivity {
 
     private void setList() {
         ListView myPlacesList = (ListView) findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, AllPlacesData.getInstance().getMyPlaces()));
+        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, allPlacesData.getInstance().getMyPlaces()));
     }
 }
