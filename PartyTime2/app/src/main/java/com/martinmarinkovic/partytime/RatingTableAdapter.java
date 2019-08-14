@@ -51,8 +51,7 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
         place_rating.setText(""+myPlace.getRating());
         image = myPlace.getImage();
 
-        try { //nije dobro!!! Koci ocitavanje!!!
-            if (!image.equals("default")) {
+        if (!image.equals("default")) {
                 Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
                         .placeholder(R.drawable.image_placeholder).into(place_profile_image, new Callback() {
                     @Override
@@ -60,14 +59,10 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
                     }
 
                     @Override
-                    public void onError(Exception e) {
-                        Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(place_profile_image);
-                    }
-                });
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+                    public void onError(Exception e) { Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(place_profile_image);
+                    }});
         }
+
         return listView;
     }
 }

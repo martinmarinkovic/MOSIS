@@ -37,20 +37,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import id.zelory.compressor.Compressor;
 
 public class EditMyPlace extends AppCompatActivity implements View.OnClickListener {
 
-    boolean editMode = true;
-    int position = -1;
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
-    String placeID;
+    private String placeID;
     private DatabaseReference mUserDatabase, mPlaceDatabase;
     private FirebaseUser mCurrentUser;
+    private boolean editMode = true;
+    private int position = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +81,6 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
         }
 
         mImageStorage = FirebaseStorage.getInstance().getReference();
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -90,12 +90,12 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
         final Button buttonFinished = (Button) findViewById(R.id.editmyplace_finished_button);
         Button cancelButton = (Button) findViewById(R.id.editmyplace_cancel_button);
         EditText nameEditText = (EditText) findViewById(R.id.editmyplace_name_edit);
+        EditText descEditText = (EditText) findViewById(R.id.editmyplace_desc_edit);
 
         if (position >= 0) {
             buttonFinished.setText("Save");
             MyPlace place = AllPlacesData.getInstance().getPlace(position);
             nameEditText.setText(place.getName());
-            EditText descEditText = (EditText) findViewById(R.id.editmyplace_desc_edit);
             descEditText.setText(place.getDescription());
         }
 
@@ -117,10 +117,26 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
             }
         });
 
+        descEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                buttonFinished.setEnabled(s.length() > 0);
+            }
+        });
+
         Button imageButton = (Button) findViewById(R.id.editmyplace_change_image_button);
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buttonFinished.setEnabled(true);
                 Intent galleryIntent = new Intent();
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
@@ -139,8 +155,12 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                 EditText etDesc = (EditText) findViewById(R.id.editmyplace_desc_edit);
                 String desc = etDesc.getText().toString();
 
-                AllPlacesData.getInstance().updatePlace(position, name, desc);
-                MyPlacesData.getInstance().updatePlace(placeID, name, desc);
+                mPlaceDatabase.child("name").setValue(name);
+                mPlaceDatabase.child("description").setValue(desc);
+                //AllPlacesData.getInstance().updatePlace(position, name, desc);
+                //MyPlacesData.getInstance().updatePlace(placeID, name, desc);
+                mUserDatabase.child("name").setValue(name);
+                mUserDatabase.child("description").setValue(desc);
 
                 setResult(Activity.RESULT_OK);
                 finish();
@@ -184,8 +204,8 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                 try {
                     thumb_bitmap = new Compressor(this)
                             .setMaxWidth(200)
-                            .setMaxHeight(200)
-                            .setQuality(75)
+                            .setMaxHeight(100)
+                            .setQuality(100)
                             .compressToBitmap(thumb_filePath);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -201,15 +221,12 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                 filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        //String thumb_downloadUrl = taskSnapshot.getDownloadUrl().toString();
-
                         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            //UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
                             @Override
                             public void onSuccess(Uri uri) {
                                 Map update_hashMap = new HashMap();
                                 update_hashMap.put("image", uri.toString());
-                                //update_hashMap.put("thumb_image", thumb_downloadUrl);
                                 mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
@@ -233,6 +250,18 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
                         });
                     }
                 });
+
+                /*UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                            }
+                        });
+                    }
+                });*/
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

@@ -30,6 +30,7 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private DatabaseReference databaseReference;
     private FirebaseDatabase firebaseDatabase;
+    private boolean check;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference();
+        check = false;
 
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
@@ -67,6 +69,10 @@ public class RegisterActivity extends AppCompatActivity {
 
                 checkIfUsernameExists(username);
 
+                if (check) {
+                    Toast.makeText(getApplicationContext(), "Username already exists!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (TextUtils.isEmpty(firstname)) {
                     Toast.makeText(getApplicationContext(), "Enter first name!", Toast.LENGTH_SHORT).show();
                     return;
@@ -134,8 +140,7 @@ public class RegisterActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot singleSnapshot: dataSnapshot.getChildren()){
                     if (singleSnapshot.exists()){
-                        Toast.makeText(RegisterActivity.this, "That username already exists.", Toast.LENGTH_SHORT).show();
-                        return;
+                        check = true;
                     }
                 }
             }

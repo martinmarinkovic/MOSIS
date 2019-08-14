@@ -57,7 +57,7 @@ public class UserProfile extends AppCompatActivity {
     private static final int GALLERY_PICK = 1;
     private StorageReference mImageStorage;
     private ProgressDialog mProgressDialog;
-    private String userID, current_uid, activity;
+    private String userID, profile_user_id, activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,14 +90,14 @@ public class UserProfile extends AppCompatActivity {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (activity.equals("FriendsList")) {
-            current_uid = userID;
+            profile_user_id = userID;
             mImageBtn.setVisibility(View.INVISIBLE);
         }
         else if(activity.equals("Main")) {
-            current_uid = mCurrentUser.getUid();
+            profile_user_id = mCurrentUser.getUid();
         }
 
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(profile_user_id);
         mUserDatabase.keepSynced(true);
         mUserDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -149,9 +149,9 @@ public class UserProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
-                bundle.putString("userID", current_uid);
-                Toast.makeText(UserProfile.this, current_uid, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(UserProfile.this, AllPlacesList.class);
+                bundle.putString("userID", profile_user_id);
+                Toast.makeText(UserProfile.this, profile_user_id, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(UserProfile.this, FriendPlacesList.class);
                 i.putExtras(bundle);
                 startActivity(i);
             }
@@ -187,9 +187,9 @@ public class UserProfile extends AppCompatActivity {
                 Bitmap thumb_bitmap = null;
                 try {
                     thumb_bitmap = new Compressor(this)
-                            .setMaxWidth(200)
-                            .setMaxHeight(200)
-                            .setQuality(75)
+                            .setMaxWidth(100)
+                            .setMaxHeight(100)
+                            .setQuality(100)
                             .compressToBitmap(thumb_filePath);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -207,14 +207,14 @@ public class UserProfile extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        //String thumb_downloadUrl = taskSnapshot.getDownloadUrl().toString();
-
                         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
+
                                 Map update_hashMap = new HashMap();
                                 update_hashMap.put("image", uri.toString());
                                 //update_hashMap.put("thumb_image", thumb_downloadUrl);
+
                                 mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {

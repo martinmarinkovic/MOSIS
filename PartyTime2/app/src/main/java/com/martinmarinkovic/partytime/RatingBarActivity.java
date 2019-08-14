@@ -29,10 +29,10 @@ public class RatingBarActivity extends AppCompatActivity {
         tv = findViewById(R.id.tv);
         ratingBtn = findViewById(R.id.user_rating);
 
-        //try {
+        try {
             Intent intent = getIntent();
             rating = intent.getFloatExtra("rating", 0);
-        //}catch (Exception e){}
+        }catch (Exception e){}
 
         ratingBar.setRating(rating);
         tv.setText(String.valueOf(rating));
@@ -51,7 +51,6 @@ public class RatingBarActivity extends AppCompatActivity {
                 userRating = tv.getText().toString();
                 float userRatingInt = Float.parseFloat(userRating);
                 Intent returnIntent = new Intent();
-                //returnIntent.putExtra("userRating", userRating);
                 returnIntent.putExtra("userRatingInt", userRatingInt);
                 setResult(RESULT_OK, returnIntent);
                 Toast.makeText(RatingBarActivity.this, "Ocena: " + userRatingInt, Toast.LENGTH_SHORT).show();

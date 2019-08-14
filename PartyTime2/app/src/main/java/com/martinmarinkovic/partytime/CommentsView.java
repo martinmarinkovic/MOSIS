@@ -41,8 +41,7 @@ import java.util.TimeZone;
 public class CommentsView extends AppCompatActivity {
 
     private static final String TAG = "CommentsView";
-    String placeID;
-
+    private String placeID, placeUserID;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseDatabase mFirebaseDatabase;
@@ -70,11 +69,11 @@ public class CommentsView extends AppCompatActivity {
         myRef = FirebaseDatabase.getInstance().getReference();
         mComments = new ArrayList<Comment>();
 
-
         try {
             Intent listIntent = getIntent();
             Bundle bundle = listIntent.getExtras();
             placeID = bundle.getString("placeID");
+            placeUserID = bundle.getString("placeUserID", placeUserID);
         } catch (Exception e) {
         }
 
@@ -130,15 +129,15 @@ public class CommentsView extends AppCompatActivity {
         comment.setUser_id(userID);
 
         myRef.child("my-places")
-                .child(placeID)//Prosledjujemo kad klikenmo na ikonu za komentare
+                .child(placeID)
                 .child("comments")
                 .child(commentID)
                 .setValue(comment);
 
         myRef.child("Users")
-                .child(userID)
+                .child(placeUserID)
                 .child("my-places")
-                .child(placeID)//Prosledjujemo kad klikenmo na ikonu za komentare
+                .child(placeID)
                 .child("comments")
                 .child(commentID)
                 .setValue(comment);

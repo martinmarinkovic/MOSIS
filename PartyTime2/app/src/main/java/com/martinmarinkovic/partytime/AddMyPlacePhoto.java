@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -105,34 +106,35 @@ public class AddMyPlacePhoto extends AppCompatActivity {
                 final Uri resultUri = result.getUri();
                 final StorageReference filepath = mImageStorage.child("places_profile_images").child(placeID + ".jpg");
 
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
 
-                        if(task.isSuccessful()){
-                            final String download_url = resultUri.toString();
-                            Map update_hashMap = new HashMap();
-                            update_hashMap.put("image", download_url);
-                            mPlaceDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        mProgressDialog.dismiss();
-                                        Toast.makeText(AddMyPlacePhoto.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                            //UploadTask uploadTask = thumb_filepath.putBytes(thumb_byte);
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Map update_hashMap = new HashMap();
+                                update_hashMap.put("image", uri.toString());
+                                mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(AddMyPlacePhoto.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
 
-                            mUserDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()){
-                                        mProgressDialog.dismiss();
-                                        Toast.makeText(AddMyPlacePhoto.this, "Success Uploading.", Toast.LENGTH_LONG).show();
-
+                                mPlaceDatabase.updateChildren(update_hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            mProgressDialog.dismiss();
+                                            Toast.makeText(AddMyPlacePhoto.this, "Success Uploading.", Toast.LENGTH_LONG).show();
+                                        }
                                     }
-                                }
-                            });
+                                });
 
                             Intent i = new Intent(AddMyPlacePhoto.this, GoogleMapsActivity.class);
                             i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
@@ -141,15 +143,11 @@ public class AddMyPlacePhoto extends AppCompatActivity {
                             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivityForResult(i, 2);
 
-                        }else{
-                            Toast.makeText(AddMyPlacePhoto.this, "Error in uploading.", Toast.LENGTH_LONG).show();
-                            mProgressDialog.dismiss();
                         }
-                    }
-                });
-
-            }
-            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                    });
+                }
+            });
+        } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();
             }
         }

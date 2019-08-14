@@ -76,4 +76,14 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_friends_list">FriendsList</string>
     <string name="title_activity_friend_profile">FriendProfile</string>
+
+    <string name="type">Select place type</string>
+    <string-array name="place_type">
+        <item> Private </item>
+        <item> Club </item>
+        <item> Tavern </item>
+        <item> Beer House </item>
+    </string-array>
+
 </resources>
+

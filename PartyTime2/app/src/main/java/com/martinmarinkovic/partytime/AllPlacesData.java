@@ -22,29 +22,18 @@ public class AllPlacesData {
     private DatabaseReference database;
     private FirebaseUser mCurrentUser;
     static public String current_uid;
+    ListUpdatedEventListener updatedListener;
 
-    public AllPlacesData(String userID) {
+    public AllPlacesData() {
         myPlaces = new ArrayList<MyPlace>();
         myPlacesKeyIndexMapping = new HashMap<String, Integer>();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        //current_uid = mCurrentUser.getUid();
-        current_uid = userID;
+        current_uid = mCurrentUser.getUid();
+        //current_uid = userID;
         database = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid).child("my-places");
         database.addChildEventListener(childEventListener);
         database.addListenerForSingleValueEvent(parentEventListener);
-
     }
-
-    ValueEventListener parentEventListener = new ValueEventListener() {
-        @Override
-        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-            if (updatedEventListener != null)
-                updatedEventListener.onListUpdated();
-        }
-        @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-        }
-    };
 
     ChildEventListener childEventListener = new ChildEventListener() {
         @Override
@@ -56,8 +45,8 @@ public class AllPlacesData {
                 myPlaces.add(myPlace);
                 myPlacesKeyIndexMapping.put(myPlaceKey, myPlaces.size()-1);
 
-                if (updatedEventListener != null)
-                    updatedEventListener.onListUpdated();
+                if (updatedListener != null)
+                    updatedListener.onListUpdated();
             }
         }
 
@@ -73,8 +62,8 @@ public class AllPlacesData {
                 myPlaces.add(myPlace);
                 myPlacesKeyIndexMapping.put(myPlaceKey, myPlaces.size()-1);
             }
-            if (updatedEventListener != null)
-                updatedEventListener.onListUpdated();
+            if (updatedListener != null)
+                updatedListener.onListUpdated();
         }
 
         @Override
@@ -85,22 +74,43 @@ public class AllPlacesData {
                 myPlaces.remove(index);
                 recreateKeyIndexMapping();
 
-                if (updatedEventListener != null)
-                    updatedEventListener.onListUpdated();
+                if (updatedListener != null)
+                    updatedListener.onListUpdated();
             }
         }
 
         @Override
         public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
         }
 
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+        }
+    };
+
+    ValueEventListener parentEventListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if (updatedListener != null)
+                updatedListener.onListUpdated();
+        }
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
         }
     };
 
+    public void setEventListener(ListUpdatedEventListener listener) {
+        updatedListener = listener;
+    }
+
+    public interface ListUpdatedEventListener {
+        void onListUpdated();
+    }
+
     private static class SingletonHolder {
-        public static final AllPlacesData instance = new AllPlacesData(current_uid);
+        public static final AllPlacesData instance = new AllPlacesData();
     }
 
     public static AllPlacesData getInstance() {
@@ -125,6 +135,7 @@ public class AllPlacesData {
         myPlacesKeyIndexMapping.put(key, myPlaces.size() - 1);
         database.child(key).setValue(place);
         place.key = key;
+        place.userId = current_uid;
     }
 
     public MyPlace getPlace(int index) {
@@ -157,18 +168,5 @@ public class AllPlacesData {
         myPlacesKeyIndexMapping.clear();
         for (int i = 0; i < myPlaces.size(); i++)
             myPlacesKeyIndexMapping.put(myPlaces.get(i).key, i);
-    }
-
-    AllPlacesData.ListUpdatedEventListener updatedEventListener;
-    public void setParentEventListener(AllPlacesData.ListUpdatedEventListener listener) {
-        updatedEventListener = listener;
-    }
-
-    public interface ListUpdatedEventListener {
-        void onListUpdated();
-    }
-
-    public void setCurrentUserID(String userID){
-        current_uid = userID;
     }
 }

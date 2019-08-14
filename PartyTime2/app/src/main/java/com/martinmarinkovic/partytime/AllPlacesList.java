@@ -1,5 +1,7 @@
 package com.martinmarinkovic.partytime;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -14,13 +16,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.util.List;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 public class AllPlacesList extends AppCompatActivity {
 
     public String placeID, userID, activity;
-    public AllPlacesData allPlacesData;
-    public List<MyPlace> list;
+    private DatabaseReference mUserDatabase;
+    private FirebaseUser mCurrentUser;
+    private FirebaseDatabase mFirebaseDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,44 +40,23 @@ public class AllPlacesList extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        try {
+        /*try {
             Intent listIntent = getIntent();
             Bundle userBundle = listIntent.getExtras();
             userID = userBundle.getString("userID");
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
-        }
+        }*/
 
-        allPlacesData = new AllPlacesData(userID);
-        //list = allPlacesData.getInstance().getMyPlaces();
-        populateListView(allPlacesData.getInstance().getMyPlaces());
-    }
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        userID = mCurrentUser.getUid();
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID).child("my-places");
 
-        //list.clear();
-
-        try {
-            Intent listIntent = getIntent();
-            Bundle userBundle = listIntent.getExtras();
-            userID = userBundle.getString("userID");
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        allPlacesData = new AllPlacesData(userID);
-        populateListView(allPlacesData.getInstance().getMyPlaces());
-    }
-
-    public void populateListView(List<MyPlace> list){
         final ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, list));
+        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, AllPlacesData.getInstance().getMyPlaces()));
         myPlacesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -84,7 +73,7 @@ public class AllPlacesList extends AppCompatActivity {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
                 AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-                MyPlace place = allPlacesData.getInstance().getPlace(info.position);
+                MyPlace place = AllPlacesData.getInstance().getPlace(info.position);
                 menu.setHeaderTitle(place.getName());
                 menu.add(0, 1, 1, "View place");
                 menu.add(0, 2, 2, "Edit place");
@@ -97,7 +86,7 @@ public class AllPlacesList extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        MyPlace myplace = allPlacesData.getInstance().getPlace(info.position);
+        MyPlace myplace = AllPlacesData.getInstance().getPlace(info.position);
         placeID = myplace.getID();
         Bundle positionBundle = new Bundle();
         positionBundle.putInt("position", info.position);
@@ -112,13 +101,13 @@ public class AllPlacesList extends AppCompatActivity {
             i.putExtras(positionBundle);
             startActivityForResult(i, 1);
         } else if (item.getItemId() == 3) {
-            allPlacesData.getInstance().deletePlace(info.position);
+            AllPlacesData.getInstance().deletePlace(info.position);
             MyPlacesData.getInstance().deletePlace(placeID);//??????????????
             setList();
         } else if (item.getItemId() == 4) {
             i = new Intent(this, GoogleMapsActivity.class);
             i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
-            MyPlace place = allPlacesData.getInstance().getPlace(info.position);
+            MyPlace place = AllPlacesData.getInstance().getPlace(info.position);
             i.putExtra("lat", place.getLatitude());
             i.putExtra("lon", place.getLongitude());
             startActivityForResult(i, 2);
@@ -136,6 +125,6 @@ public class AllPlacesList extends AppCompatActivity {
 
     private void setList() {
         ListView myPlacesList = (ListView) findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, allPlacesData.getInstance().getMyPlaces()));
+        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, AllPlacesData.getInstance().getMyPlaces()));
     }
 }

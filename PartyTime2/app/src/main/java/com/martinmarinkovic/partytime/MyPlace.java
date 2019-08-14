@@ -3,6 +3,8 @@ package com.martinmarinkovic.partytime;
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.List;
+
 @IgnoreExtraProperties
 public class MyPlace {
 
@@ -14,10 +16,46 @@ public class MyPlace {
     public float rating;
     public int numOfRatings;
     public float ratingsSum;
+    public String type;
+    //public List<Comment> comments;
+    //public List<Rating> ratings;
+    public String userId;
+
     @Exclude
     public String key;
 
     public MyPlace() {}
+
+    /*public MyPlace(String name, String description, String image, float rating, int numOfRatings, float ratingsSum, String type, List<Comment> comments, List<Rating> ratings) {
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.rating = rating;
+        this.numOfRatings = numOfRatings;
+        this.ratingsSum = ratingsSum;
+        this.type = type;
+        this.comments = comments;
+        this.ratings = ratings;
+    }*/
+
+    public MyPlace(String name, String description, String image, float rating, int numOfRatings, float ratingsSum, String userId) {
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.rating = rating;
+        this.numOfRatings = numOfRatings;
+        this.ratingsSum = ratingsSum;
+        this.userId = userId;
+    }
+
+    public MyPlace(String name, String description, String image, float rating, int numOfRatings, float ratingsSum) {
+        this.name = name;
+        this.description = description;
+        this.image = image;
+        this.rating = rating;
+        this.numOfRatings = numOfRatings;
+        this.ratingsSum = ratingsSum;
+    }
 
     public MyPlace(String name, String description, String image, float rating) {
         this.name = name;
@@ -119,4 +157,36 @@ public class MyPlace {
     public void setRatingsSum(float ratingsSum) {
         this.ratingsSum = ratingsSum;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    /*public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public void setRatings(List<Rating> ratings) {
+        this.ratings = ratings;
+    }*/
 }

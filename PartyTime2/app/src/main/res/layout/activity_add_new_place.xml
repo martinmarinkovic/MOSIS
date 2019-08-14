@@ -36,6 +36,33 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:orientation="horizontal">
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select the type of place:"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:textColorHint="@color/black"/>
+
+        <Spinner
+            android:dropDownWidth="wrap_content"
+            android:textAlignment="center"
+            android:layout_marginLeft="30dp"
+            android:id="@+id/spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/place_type"
+            android:prompt="@string/type"/>
+
+        </LinearLayout>
+
         <TextView
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"

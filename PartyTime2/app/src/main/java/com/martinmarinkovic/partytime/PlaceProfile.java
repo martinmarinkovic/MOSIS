@@ -1,5 +1,7 @@
 package com.martinmarinkovic.partytime;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -15,19 +17,29 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 public class PlaceProfile extends AppCompatActivity {
 
-    private String placeID;
-    private float rating, ratingsSum;
-    private DatabaseReference myRef;
+    private String placeID, userID, placeUserID, friendPlaceID;
+    private float rating, ratingsSum, placeRating, oldRating;
+    private DatabaseReference myRef, mUserDatabase, mPlaceDatabase;
     private FirebaseUser mCurrentUser;
     private int numOfRatings;
+    private List<Rating> ratingsList;
+    private Rating myRating;
+    private Boolean firtsTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,36 +48,53 @@ public class PlaceProfile extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        myRef = FirebaseDatabase.getInstance().getReference();
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String current_uid = mCurrentUser.getUid();
         int position = -1;
         int activity = 0;
         placeID = null;
-        rating = -1;
-        myRef = FirebaseDatabase.getInstance().getReference();
-        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        rating = 0;
+        firtsTime = true;
+        myRating = null;
 
         try {
             Intent listIntent = getIntent();
             Bundle positionBundle = listIntent.getExtras();
             position = positionBundle.getInt("position");
             activity = positionBundle.getInt("activity");
+            friendPlaceID = positionBundle.getString("placeID");
         } catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
         }
 
+        Toast.makeText(PlaceProfile.this, friendPlaceID, Toast.LENGTH_SHORT).show();
+
         if (position >= 0) {
 
             MyPlace place = null;
-
             if (activity == 1)
                 place = MyPlacesData.getInstance().getPlace(position);
-            else
+            else if (activity == 2)
                 place = AllPlacesData.getInstance().getPlace(position);
+            else
+                place = MyPlacesData.getInstance().findPlace(friendPlaceID);
 
             placeID = place.getKey();
-            rating = place.getRating();
+            placeUserID = place.getUserId();
+
+            mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(placeUserID).child("my-places").child(placeID);
+            mPlaceDatabase = FirebaseDatabase.getInstance().getReference().child("my-places").child(placeID);
+            mUserDatabase.keepSynced(true);
+            mPlaceDatabase.keepSynced(true);
+
+            userID = mCurrentUser.getUid();
             numOfRatings = place.getNumOfRatings();
             ratingsSum = place.getRatingsSum();
+            placeRating = place.getRating();
+
+            getRating();
 
             TextView twName = (TextView) findViewById(R.id.my_place_name);
             twName.setText(place.getName());
@@ -75,7 +104,7 @@ public class PlaceProfile extends AppCompatActivity {
             final String image = place.getImage().toString();
 
             if (!image.equals("default")) {
-                Toast.makeText(PlaceProfile.this, image + "UCITAOOO!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PlaceProfile.this, image + "UCITAOOO!!!", Toast.LENGTH_SHORT).show();
                 Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
                         .placeholder(R.drawable.image_placeholder).into(displayImage, new Callback() {
                     @Override
@@ -84,7 +113,7 @@ public class PlaceProfile extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        Toast.makeText(PlaceProfile.this, "GRESKAAAAAA ???????????????????????????????????????", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PlaceProfile.this, "GRESKAAAAAA!!!", Toast.LENGTH_SHORT).show();
                         Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(displayImage);
                     }
                 });
@@ -113,6 +142,7 @@ public class PlaceProfile extends AppCompatActivity {
                 if (placeID != null) {
                     Bundle bundle = new Bundle();
                     bundle.putString("placeID", placeID);
+                    bundle.putString("placeUserID", placeUserID);
                     Intent i = new Intent(PlaceProfile.this, CommentsView.class);
                     i.putExtras(bundle);
                     startActivity(i);
@@ -126,7 +156,7 @@ public class PlaceProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (rating >= 0) {
-                    Toast.makeText(PlaceProfile.this, rating +"", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PlaceProfile.this, rating + "", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(PlaceProfile.this, RatingBarActivity.class);
                     i.putExtra("rating", rating);
                     startActivityForResult(i, 1);
@@ -135,51 +165,100 @@ public class PlaceProfile extends AppCompatActivity {
         });
     }
 
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-            if (requestCode == 1) {
-                if(resultCode == RESULT_OK){
-                    //String result = data.getStringExtra("userRating");
-                    float result = data.getFloatExtra("userRatingInt", 0);
-                    Toast.makeText(PlaceProfile.this, result +"", Toast.LENGTH_SHORT).show();
-                    String current_uid = mCurrentUser.getUid();
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+
+                float result = data.getFloatExtra("userRatingInt", 0);
+                Toast.makeText(PlaceProfile.this, result + "", Toast.LENGTH_SHORT).show();
+
+                if(firtsTime) {
                     numOfRatings++;
                     ratingsSum = ratingsSum + result;
-                    rating = ratingsSum / numOfRatings;
-
-                    myRef.child("my-places")
-                            .child(placeID)
-                            .child("numOfRatings")
-                            .setValue(numOfRatings);
-
-                    myRef.child("my-places")
-                            .child(placeID)
-                            .child("ratingsSum")
-                            .setValue(ratingsSum);
-
-                    if(rating == 0) {
-                        myRef.child("my-places")
-                                .child(placeID)
-                                .child("rating")
-                                .setValue(result);
-                    } else {
-                        myRef.child("my-places")
-                                .child(placeID)
-                                .child("rating")
-                                .setValue(rating);
-                    }
-
-                    /*myRef.child("Users")
-                            .child(current_uid)
-                            .child("my-places")
-                            .child(placeID)
-                            .child("rating")
-                            .setValue(result);*/
+                    placeRating = ratingsSum / numOfRatings;
+                    myRating = new Rating(result, userID);
+                }else{
+                    ratingsSum = ratingsSum - oldRating + result;
+                    placeRating = ratingsSum / numOfRatings;
+                    myRating = new Rating(result, userID);
                 }
-                if (resultCode == RESULT_CANCELED) {
-                    //Write your code if there's no result
-                }
+
+                addRating();
             }
+            if (resultCode == RESULT_CANCELED) {}
         }
+    }
+
+    public void addRating(){
+
+        mPlaceDatabase.child("ratings")
+                .child(userID)
+                .setValue(myRating);
+
+        mPlaceDatabase.child("numOfRatings")
+                .setValue(numOfRatings);
+
+        mPlaceDatabase.child("ratingsSum")
+                .setValue(ratingsSum);
+
+        mPlaceDatabase.child("rating")
+                .setValue(placeRating);
+
+        mUserDatabase.child("ratings")
+                .child(userID)
+                .setValue(myRating);
+
+        mUserDatabase.child("numOfRatings")
+                .setValue(numOfRatings);
+
+        mUserDatabase.child("ratingsSum")
+                .setValue(ratingsSum);
+
+        mUserDatabase.child("rating")
+                .setValue(placeRating);
+    }
+
+    public void getRating() {
+
+        Query query = myRef
+                .child("my-places")
+                .child(placeID)
+                .child("ratings")
+                .orderByKey()
+                .equalTo(userID);
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                myRating = dataSnapshot.getValue(Rating.class);
+                Toast.makeText(PlaceProfile.this, "NASO:  " + myRating.getRating(), Toast.LENGTH_LONG).show();
+
+                rating = myRating.getRating();
+                oldRating = rating;
+                firtsTime = false;
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                myRating = dataSnapshot.getValue(Rating.class);
+                Toast.makeText(PlaceProfile.this, "NASO:  " + myRating, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
 }

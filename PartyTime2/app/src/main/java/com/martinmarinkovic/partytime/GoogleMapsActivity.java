@@ -70,7 +70,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private static final float DEFAULT_ZOOM = 15f;
     private EditText mSearchText;
     private List<MyPlace> mPlacesList, lista;
-    ListView myPlacesListView;
+    private ListView myPlacesListView;
     private ImageView searchBtn;
 
     @Override
@@ -81,7 +81,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         mSearchText = (EditText) findViewById(R.id.input_search);
         searchBtn = (ImageView) findViewById(R.id.ic_magnify);
         mSearchText = (EditText) findViewById(R.id.input_search);
-        lista = AllPlacesData.getInstance().getMyPlaces();
+        lista = MyPlacesData.getInstance().getMyPlaces();
 
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,11 +221,33 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             String lon = place.getLongitude();
             LatLng loc = new LatLng(Double.parseDouble(lat), Double.parseDouble(lon));
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(loc);
-            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_beer));
-            markerOptions.title(place.getName());
-            Marker marker = mMap.addMarker(markerOptions);
-            markerPlaceIdMap.put(marker, i);
+            String type = place.getType();
+            if(type.equals("Club")) {
+                markerOptions.position(loc);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_ic_club));
+                markerOptions.title(place.getName());
+                Marker marker = mMap.addMarker(markerOptions);
+                markerPlaceIdMap.put(marker, i);
+            } else if(type.equals("Tavern")) {
+                markerOptions.position(loc);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_ic_tavern));
+                markerOptions.title(place.getName());
+                Marker marker = mMap.addMarker(markerOptions);
+                markerPlaceIdMap.put(marker, i);
+            } else if(type.equals("Beer House")) {
+                markerOptions.position(loc);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_ic_beer_house));
+                markerOptions.title(place.getName());
+                Marker marker = mMap.addMarker(markerOptions);
+                markerPlaceIdMap.put(marker, i);
+            }
+            else if(type.equals("Private")) {
+                markerOptions.position(loc);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.map_ic_private_party));
+                markerOptions.title(place.getName());
+                Marker marker = mMap.addMarker(markerOptions);
+                markerPlaceIdMap.put(marker, i);
+            }
         }
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -255,7 +277,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void setList(){
         myPlacesListView = (ListView)findViewById(R.id.listView);
-        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, AllPlacesData.getInstance().getMyPlaces()));
+        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
     }
 
     private void initTextListener(){

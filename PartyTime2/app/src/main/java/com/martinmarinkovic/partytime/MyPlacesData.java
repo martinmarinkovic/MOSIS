@@ -19,6 +19,9 @@ package com.martinmarinkovic.partytime;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,6 +36,8 @@ public class MyPlacesData {
     private ArrayList<MyPlace> myPlaces;
     private HashMap<String, Integer> myPlacesKeyIndexMapping;
     private DatabaseReference database;
+    private FirebaseUser mCurrentUser;
+    static public String current_uid;
     private static final String FIREBASE_CHILD = "my-places";
 
     private MyPlacesData() {
@@ -41,6 +46,8 @@ public class MyPlacesData {
         database = FirebaseDatabase.getInstance().getReference();
         database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
         database.child(FIREBASE_CHILD).addListenerForSingleValueEvent(parentEventListener);
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        current_uid = mCurrentUser.getUid();
     }
 
     ValueEventListener parentEventListener = new ValueEventListener() {
@@ -125,6 +132,7 @@ public class MyPlacesData {
         myPlacesKeyIndexMapping.put(key, myPlaces.size() - 1);
         database.child(FIREBASE_CHILD).child(key).setValue(place);
         place.key = key;
+        place.userId = current_uid;
     }
 
     public MyPlace getPlace(int index) {
@@ -141,6 +149,14 @@ public class MyPlacesData {
                 recreateKeyIndexMapping();
             }
         }
+    }
+
+    public MyPlace findPlace(String placeID){
+        for (int f=0;f<myPlaces.size();f++){
+            if (myPlaces.get(f).key.equals(placeID))
+                return  myPlaces.get(f);
+        }
+        return null;
     }
 
     public void updatePlace(int index, String name, String desc, String lon, String lat) {

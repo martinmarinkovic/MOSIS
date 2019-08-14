@@ -15,9 +15,11 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -37,9 +39,12 @@ import java.util.Random;
 public class AddNewPlace extends AppCompatActivity implements View.OnClickListener {
 
     int position = -1;
+    private Spinner spinner;
+    private EditText etName,etDesc, latEdit, lonEdit;
+    private Button addButton, locationButton, cancelButton;
     private ProgressDialog mProgressDialog;
-    String AB;
-    SecureRandom rnd;
+    public String AB;
+    public SecureRandom rnd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,35 +57,22 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         setTitle("Add place");
 
-        final Button buttonFinished = (Button)findViewById(R.id.editmyplace_finished_button);
-        Button cancelButton = (Button)findViewById(R.id.editmyplace_cancel_button);
-        EditText nameEditText = (EditText)findViewById(R.id.editmyplace_name_edit);
+        addButton = (Button)findViewById(R.id.editmyplace_finished_button);
+        cancelButton = (Button)findViewById(R.id.editmyplace_cancel_button);
+        locationButton = (Button) findViewById(R.id.editmyplace_location_button);
+        etName = (EditText)findViewById(R.id.editmyplace_name_edit);
+        etDesc = (EditText)findViewById(R.id.editmyplace_desc_edit);
+        latEdit = (EditText) findViewById(R.id.editmyplace_lat_edit);
+        lonEdit = (EditText) findViewById(R.id.editmyplace_lon_edit);
+        spinner = (Spinner) findViewById(R.id.spinner);
+
+        addButton.setOnClickListener(this);
+        //addButton.setEnabled(false);
+        cancelButton.setOnClickListener(this);
+        locationButton.setOnClickListener(this);
 
         AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         rnd = new SecureRandom();
-
-        buttonFinished.setEnabled(false);
-        buttonFinished.setText("Add");
-        buttonFinished.setOnClickListener(this);
-        buttonFinished.setEnabled(false);
-        cancelButton.setOnClickListener(this);
-        nameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                buttonFinished.setEnabled(s.length() > 0);
-            }
-        });
-
-        Button locationButton = (Button) findViewById(R.id.editmyplace_location_button);
-        locationButton.setOnClickListener(this);
     }
 
     @Override
@@ -88,22 +80,33 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
 
         switch (v.getId()) {
             case R.id.editmyplace_finished_button: {
-                EditText etName = (EditText)findViewById(R.id.editmyplace_name_edit);
-                String name = etName.getText().toString();
-                EditText etDesc = (EditText)findViewById(R.id.editmyplace_desc_edit);
-                String desc = etDesc.getText().toString();
-                EditText latEdit = (EditText) findViewById(R.id.editmyplace_lat_edit);
-                String lat = latEdit.getText().toString();
-                EditText lonEdit = (EditText) findViewById(R.id.editmyplace_lon_edit);
-                String lon = lonEdit.getText().toString();
-                ImageView img = (ImageView) findViewById(R.id.my_place_image);
 
-                MyPlace place = new MyPlace(name, desc, "default", 0);
+                String name = etName.getText().toString();
+                String desc = etDesc.getText().toString();
+                String lat = latEdit.getText().toString();
+                String lon = lonEdit.getText().toString();
+                String type = spinner.getSelectedItem().toString();
+
+                if(name.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Enter name!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(lat.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Enter coordinates!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(lon.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Enter coordinates!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                MyPlace place = new MyPlace(name, desc, "default", 0, 0,0);
                 place.setLatitude(lat);
                 place.setLongitude(lon);
+                place.setType(type);
                 //String key = database.push().getKey();
                 String key = randomString(20);
-                MyPlacesData.getInstance().addNewPlace(place, key);//da dodam neki random string generator
+                MyPlacesData.getInstance().addNewPlace(place, key);
                 AllPlacesData.getInstance().addNewPlace(place, key);
 
                 setResult(Activity.RESULT_OK);
@@ -153,7 +156,7 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
         }
     }
 
-    String randomString( int len ){
+    public String randomString( int len ){
         StringBuilder sb = new StringBuilder( len );
         for( int i = 0; i < len; i++ )
             sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
