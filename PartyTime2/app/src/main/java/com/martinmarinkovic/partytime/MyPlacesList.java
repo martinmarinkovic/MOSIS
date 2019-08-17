@@ -14,8 +14,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 
 public class MyPlacesList extends AppCompatActivity {
+
+    private ArrayList<MyPlace> ratingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +31,6 @@ public class MyPlacesList extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getWindow().setBackgroundDrawableResource(R.drawable.theme);
-
         final ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);
 
         RatingTableAdapter ratingTableAdapter = new RatingTableAdapter(MyPlacesList.this, MyPlacesData.getInstance().getMyPlaces());
@@ -88,6 +91,6 @@ public class MyPlacesList extends AppCompatActivity {
 
     private void setList() {
         ListView myPlacesList = (ListView) findViewById(R.id.my_places_list);
-        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
+        myPlacesList.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, ratingList));
     }
 }

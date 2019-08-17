@@ -37,17 +37,17 @@ public class MyPlacesData {
     private HashMap<String, Integer> myPlacesKeyIndexMapping;
     private DatabaseReference database;
     private FirebaseUser mCurrentUser;
-    static public String current_uid;
+    public String current_uid;
     private static final String FIREBASE_CHILD = "my-places";
 
     private MyPlacesData() {
         myPlaces = new ArrayList<MyPlace>();
         myPlacesKeyIndexMapping = new HashMap<String, Integer>();
+        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
+        current_uid = mCurrentUser.getUid();
         database = FirebaseDatabase.getInstance().getReference();
         database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
         database.child(FIREBASE_CHILD).addListenerForSingleValueEvent(parentEventListener);
-        mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-        current_uid = mCurrentUser.getUid();
     }
 
     ValueEventListener parentEventListener = new ValueEventListener() {
@@ -71,6 +71,8 @@ public class MyPlacesData {
                 myPlaces.add(myPlace);
                 myPlacesKeyIndexMapping.put(myPlaceKey, myPlaces.size()-1);
 
+                sort();
+
                 if (updatedEventListener != null)
                     updatedEventListener.onListUpdated();
             }
@@ -88,6 +90,9 @@ public class MyPlacesData {
                 myPlaces.add(myPlace);
                 myPlacesKeyIndexMapping.put(myPlaceKey, myPlaces.size()-1);
             }
+
+            sort();
+
             if (updatedEventListener != null)
                 updatedEventListener.onListUpdated();
         }
@@ -98,7 +103,9 @@ public class MyPlacesData {
             if (myPlacesKeyIndexMapping.containsKey(myPlaceKey)) {
                 int index = myPlacesKeyIndexMapping.get(myPlaceKey);
                 myPlaces.remove(index);
-                recreateKeyIndexMapping();
+                //recreateKeyIndexMapping();
+
+                sort();
 
                 if (updatedEventListener != null)
                     updatedEventListener.onListUpdated();
@@ -130,9 +137,9 @@ public class MyPlacesData {
         //String key = database.push().getKey();
         myPlaces.add(place);
         myPlacesKeyIndexMapping.put(key, myPlaces.size() - 1);
-        database.child(FIREBASE_CHILD).child(key).setValue(place);
         place.key = key;
         place.userId = current_uid;
+        database.child(FIREBASE_CHILD).child(key).setValue(place);
     }
 
     public MyPlace getPlace(int index) {
@@ -184,6 +191,20 @@ public class MyPlacesData {
         myPlacesKeyIndexMapping.clear();
         for (int i = 0; i < myPlaces.size(); i++)
             myPlacesKeyIndexMapping.put(myPlaces.get(i).key, i);
+    }
+
+
+    public void sort() {
+
+        for (int i = 0; i < myPlaces.size(); i++)
+            for (int j = 0; j < myPlaces.size(); j++)
+                if (myPlaces.get(i).rating > myPlaces.get(j).rating) {
+                    MyPlace myPlace = myPlaces.get(i);
+                    myPlaces.set(i, myPlaces.get(j));
+                    myPlaces.set(j, myPlace);
+                }
+
+        recreateKeyIndexMapping();
     }
 
     ListUpdatedEventListener updatedEventListener;

@@ -72,6 +72,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private List<MyPlace> mPlacesList, lista;
     private ListView myPlacesListView;
     private ImageView searchBtn;
+    private  String searchRadius, searchType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,14 +80,15 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
         setContentView(R.layout.activity_google_maps);
         mSearchText = (EditText) findViewById(R.id.input_search);
-        searchBtn = (ImageView) findViewById(R.id.ic_magnify);
+        searchBtn = (ImageView) findViewById(R.id.select_catgory);
         mSearchText = (EditText) findViewById(R.id.input_search);
         lista = MyPlacesData.getInstance().getMyPlaces();
+        mPlacesList = new ArrayList<>();
 
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(GoogleMapsActivity.this, SearchPlaces.class);
+                Intent intent = new Intent(GoogleMapsActivity.this, SearchByAtributes.class);
                 startActivity(intent);
             }
         });
@@ -130,6 +132,23 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             Log.d("Error", "Error reading state");
         }
 
+        try {
+            Intent searchIntent = getIntent();
+            Bundle searchBundle = searchIntent.getExtras();
+            if (searchBundle != null) {
+                searchRadius = searchBundle.getString("radius");
+                searchType = searchBundle.getString("type");
+            }
+        } catch (Exception e) {
+            Log.d("Error", "Error reading state");
+        }
+
+        if (searchType == null)
+            searchType = "All";
+
+        if (searchRadius == null)
+            searchRadius = " None ";
+
         hideSoftKeyboard();
         initTextListener();
     }
@@ -160,9 +179,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
             addMyPlaceMarkers();
         }
-
-        //hideSoftKeyboard();
-        //initTextListener();
     }
 
     private void setOnMapClickListener () {
@@ -277,12 +293,18 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void setList(){
         myPlacesListView = (ListView)findViewById(R.id.listView);
-        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
+        //myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
+        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
+    }
+
+    private void refreshList() {
+        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
     }
 
     private void initTextListener(){
 
-        mPlacesList = new ArrayList<>();
+        //mPlacesList = new ArrayList<>();
+
         mSearchText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -304,12 +326,22 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
         mPlacesList.clear();
         if(keyword.length() ==0){
+            refreshList();
         }else{
             setList();
-            for(MyPlace myPlace : lista){
-                if(myPlace.getName().toLowerCase().contains(keyword.toLowerCase())){
-                    mPlacesList.add(myPlace);
-                    updateSearchList();
+            if(searchType.equals("All")) {
+                for (MyPlace myPlace : lista) {
+                    if (myPlace.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                        mPlacesList.add(myPlace);
+                        updateSearchList();
+                    }
+                }
+            } else {
+                for (MyPlace myPlace : lista) {
+                    if (myPlace.getType().equals(searchType) && myPlace.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                        mPlacesList.add(myPlace);
+                        updateSearchList();
+                    }
                 }
             }
         }
@@ -317,12 +349,12 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void updateSearchList(){
 
+        //refreshList();
         myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
         myPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(GoogleMapsActivity.this,""+ mPlacesList.get(position).getName(), Toast.LENGTH_SHORT).show();
-                mSearchText.setText(mPlacesList.get(position).getName());
+                //mSearchText.setText(mPlacesList.get(position).getName());
                 geoLocate(mPlacesList.get(position));
             }
         });
@@ -332,7 +364,8 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         LatLng placeLoc = new LatLng(Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude()));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,mMap.getMaxZoomLevel() - 5));
         mPlacesList.clear();
-        myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
+        refreshList();
+        hideSoftKeyboard();
     }
 
     private void hideSoftKeyboard(){
@@ -340,6 +373,60 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
+    }
+
+    private void radiusSearchResult(){
+        Toast.makeText(GoogleMapsActivity.this, "Upao u funkciju! Radijus je: " + searchRadius, Toast.LENGTH_SHORT).show();
+        Location userLocation = mMap.getMyLocation();
+        double lat1 = userLocation.getLatitude();
+        double lon1 = userLocation.getLongitude();
+        for (MyPlace myPlace : lista) {
+            if(distance(lat1, lon1, Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude())) < 10) {
+                mPlacesList.add(myPlace);
+                Toast.makeText(GoogleMapsActivity.this, "Prvo mesto: : " +  mPlacesList.get(0).getName(), Toast.LENGTH_SHORT).show();
+                setList();
+            }
+        }
+    }
+
+    public static Double getDistance(double lat_a, double lng_a, double lat_b, double lng_b) {
+        // earth radius is in mile
+        double earthRadius = 3958.75;
+        double latDiff = Math.toRadians(lat_b - lat_a);
+        double lngDiff = Math.toRadians(lng_b - lng_a);
+        double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2)
+                + Math.cos(Math.toRadians(lat_a))
+                * Math.cos(Math.toRadians(lat_b)) * Math.sin(lngDiff / 2)
+                * Math.sin(lngDiff / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = earthRadius * c;
+
+        int meterConversion = 1609;
+        double kmConvertion = 1.6093;
+        return new Double(distance * kmConvertion).doubleValue();
+        //return String.format("%.2f", new Float(distance * kmConvertion).floatValue()) + " km";
+        // return String.format("%.2f", distance)+" m";
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1))
+                * Math.sin(deg2rad(lat2))
+                + Math.cos(deg2rad(lat1))
+                * Math.cos(deg2rad(lat2))
+                * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        return (dist);
+    }
+
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
     }
 
     private void showAllUsersLocation() {

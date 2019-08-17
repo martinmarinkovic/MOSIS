@@ -27,24 +27,25 @@
         android:id="@+id/relLayout1">
 
         <EditText
+            android:layout_marginLeft="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_toRightOf="@+id/ic_magnify"
+            android:layout_toRightOf="@+id/select_catgory"
             android:layout_centerVertical="true"
             android:textSize="15sp"
             android:textColor="#000"
             android:id="@+id/input_search"
             android:background="@null"
-            android:hint="Enter Place Name"
+            android:hint=" Search... "
             android:imeOptions="actionSearch"/>
 
         <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:id="@+id/ic_magnify"
+            android:id="@+id/select_catgory"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/ic_map"/>
+            android:src="@drawable/ic_search_select_catgory"/>
 
     </RelativeLayout>
 
@@ -52,6 +53,7 @@
         android:layout_below="@+id/relLayout1"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:background="@color/white"
         android:id="@+id/listView"
         android:layout_width="match_parent"

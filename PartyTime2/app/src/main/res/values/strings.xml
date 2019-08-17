@@ -84,6 +84,16 @@
         <item> Tavern </item>
         <item> Beer House </item>
     </string-array>
+    <string name="title_activity_search_by_atributes">SearchByAtributes</string>
+    <string-array name="radius_values">
+        <item> None </item>
+        <item> 1 KM </item>
+        <item> 5 KM </item>
+        <item> 10 KM </item>
+        <item> 20 KM </item>
+        <item> 50 KM </item>
+        <item> 100 KM </item>
+    </string-array>
 
 </resources>
 
