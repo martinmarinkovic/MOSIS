@@ -1,5 +1,7 @@
 package com.martinmarinkovic.partytime;
 
+import com.google.firebase.database.Exclude;
+
 public class User {
     public String firstname;
     public String lastname;
@@ -8,6 +10,10 @@ public class User {
     public String userID;
     public String status;
     public String thumb_image;
+
+    @Exclude
+    public String key;
+
 
     public User() {
     }

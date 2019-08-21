@@ -3,10 +3,14 @@ package com.martinmarinkovic.partytime;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.core.app.ActivityCompat;
 
@@ -16,6 +20,7 @@ import android.location.Location;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -43,12 +48,19 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,6 +70,7 @@ import java.util.Locale;
 
 public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private static final String TAG = "GoogleMaps";
     private GoogleMap mMap;
     static int NEW_PLACE = -1;
     public static final int SHOW_MAP = 0; //prikaz trenutne korisnikove lokacije
@@ -73,6 +86,18 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private ListView myPlacesListView;
     private ImageView searchBtn;
     private  String searchRadius, searchType;
+    private ClusterManager<ClusterMarker> mClusterManager;
+    private MyClusterManagerRenderer mClusterManagerRenderer;
+    private ArrayList<ClusterMarker> mClusterMarkers = new ArrayList<>();
+    private ArrayList<User> mUserList = new ArrayList<>();
+    private ArrayList<UserLocation> mUserLocations = new ArrayList<>();
+    private ArrayList<UserLocation> locations;
+    private UserLocation mUserPosition;
+    private Handler mHandler = new Handler();
+    private Runnable mRunnable;
+    private static final int LOCATION_UPDATE_INTERVAL = 3000;
+    private DatabaseReference mRef;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +109,11 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         mSearchText = (EditText) findViewById(R.id.input_search);
         lista = MyPlacesData.getInstance().getMyPlaces();
         mPlacesList = new ArrayList<>();
+        mRef = FirebaseDatabase.getInstance().getReference();
+        locations = new ArrayList<>();
+
+        if (mUserLocations.size() == 0)
+            mUserLocations = UserData.getInstance().getUserLocationsList();
 
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,6 +183,23 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         initTextListener();
     }
 
+    /*
+        @Override
+        public void onResume() {
+            super.onResume();
+            startUserLocationsRunnable(); // update user locations every 'LOCATION_UPDATE_INTERVAL'
+        }
+
+        @Override
+        public void onStart() {
+            super.onStart();
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+        }
+    */
     static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -178,6 +225,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
             }
             addMyPlaceMarkers();
+            addMapMarkers();
         }
     }
 
@@ -269,17 +317,179 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                int i  = markerPlaceIdMap.get(marker);
-                Bundle positionBundle = new Bundle();
-                positionBundle.putInt("position", i);
-                positionBundle.putInt("activity", 1);
-                Intent intent = new Intent(GoogleMapsActivity.this, PlaceProfile.class);
-                intent.putExtras(positionBundle);
-                startActivity(intent);
+                try {
+                    int i = markerPlaceIdMap.get(marker);
+                    Bundle positionBundle = new Bundle();
+                    positionBundle.putInt("position", i);
+                    positionBundle.putInt("activity", 1);
+                    Intent intent = new Intent(GoogleMapsActivity.this, PlaceProfile.class);
+                    intent.putExtras(positionBundle);
+                    startActivity(intent);
+                    return false;
+                }catch (Exception e){}
                 return false;
             }
         });
     }
+
+    //Na odredjen vremenski interval zovemo retrieveUserLocations();
+    private void startUserLocationsRunnable(){
+        Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
+        mHandler.postDelayed(mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                retrieveUserLocations();
+                mHandler.postDelayed(mRunnable, LOCATION_UPDATE_INTERVAL);
+            }
+        }, LOCATION_UPDATE_INTERVAL);
+    }
+
+    private void stopLocationUpdates(){
+        mHandler.removeCallbacks(mRunnable);
+    }
+
+    private void retrieveUserLocations() {
+        Log.d(TAG, "retrieveUserLocations: retrieving location of all users in the chatroom.");
+
+        try {
+            for (final ClusterMarker clusterMarker : mClusterMarkers) {
+
+                Query query = mRef
+                        .child("User Locations")
+                        .orderByKey()
+                        .equalTo(clusterMarker.getUser().getUserID());
+                query.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        final UserLocation updatedUserLocation = dataSnapshot.getValue(UserLocation.class);
+
+                        // update the location
+                        for (int i = 0; i < mClusterMarkers.size(); i++) {
+                            try {
+                                if (mClusterMarkers.get(i).getUser().getUserID().equals(updatedUserLocation.getUser().getUserID())) {
+
+                                    LatLng updatedLatLng = new LatLng(
+                                            updatedUserLocation.getGeo_point().getLatitude(),
+                                            updatedUserLocation.getGeo_point().getLongitude()
+                                    );
+
+                                    mClusterMarkers.get(i).setPosition(updatedLatLng);
+                                    mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
+                                }
+                            }
+                            catch (Exception e){}
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }
+        catch (Exception e){}
+    }
+
+    private void addMapMarkers(){
+
+        if(mMap != null){
+
+            if(mClusterManager == null){
+                mClusterManager = new ClusterManager<ClusterMarker>(getApplicationContext(), mMap);
+            }
+
+            if(mClusterManagerRenderer == null){
+                mClusterManagerRenderer = new MyClusterManagerRenderer(
+                        GoogleMapsActivity.this,
+                        mMap,
+                        mClusterManager
+                );
+                mClusterManager.setRenderer(mClusterManagerRenderer);
+            }
+
+            for(UserLocation userLocation: mUserLocations){
+
+                Log.d(TAG, "addMapMarkers: location: " + userLocation.getGeo_point().toString());
+                try{
+                    String snippet = "";
+                    if(userLocation.getUser().getUserID().equals(FirebaseAuth.getInstance().getUid())){
+                        snippet = "This is you";
+                    }
+                    else{
+                        snippet = "This is your friend ";
+                    }
+
+                    String avatar = String.valueOf(R.drawable.default_avatar); // set the default avatar
+                    try{
+                        avatar = userLocation.getUser().image;
+                    }catch (NumberFormatException e){}
+
+                    ClusterMarker newClusterMarker = new ClusterMarker(
+                            new LatLng(userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude()),
+                            userLocation.getUser().getUsername(),
+                            snippet,
+                            avatar,
+                            userLocation.getUser()
+                    );
+                    mClusterManager.addItem(newClusterMarker); //Nema bas dobre metode pa kreiramo i donju listu
+                    mClusterMarkers.add(newClusterMarker); //Ne dodaje ga odmah na mapu, cuvamo ga kao referencu za kasnije
+
+                }catch (NullPointerException e){
+                    Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
+                }
+            }
+            mClusterManager.cluster();
+
+            mClusterManager.setOnClusterClickListener(
+                    new ClusterManager.OnClusterClickListener<ClusterMarker>() {
+                        @Override
+                        public boolean onClusterClick(Cluster<ClusterMarker> cluster) {
+
+                            Toast.makeText(GoogleMapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
+
+                            return false;
+                        }
+                    });
+
+                    mClusterManager.setOnClusterItemClickListener(
+                            new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
+                                @Override
+                                public boolean onClusterItemClick(ClusterMarker clusterItem) {
+
+                                    String userID = clusterItem.getUser().getUserID();
+                                    Bundle positionBundle = new Bundle();
+                                    positionBundle.putString("userID", userID);
+                                    positionBundle.putString("activity", "FriendsList");
+                                    Intent intent = new Intent(GoogleMapsActivity.this, UserProfile.class);
+                                    intent.putExtras(positionBundle);
+                                    startActivity(intent);
+                                    return false;
+                                }
+                            });
+
+            mClusterManager.setOnClusterItemInfoWindowClickListener(
+                    new ClusterManager.OnClusterItemInfoWindowClickListener<ClusterMarker>() {
+                        @Override public void onClusterItemInfoWindowClick(ClusterMarker clusterItem) {
+                            Toast.makeText(GoogleMapsActivity.this, "Clicked info window: " + clusterItem.getTitle(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+            mMap.setOnMarkerClickListener(mClusterManager);
+
+            mMap.setOnInfoWindowClickListener(mClusterManager);
+        }
+    }
+
+    /*private void setUserPosition() {
+        for (UserLocation userLocation : mUserLocations) {
+            if (userLocation.getUser().getUserID().equals(FirebaseAuth.getInstance().getUid())) {
+                mUserPosition = userLocation;
+            }
+        }
+    }*/
 
     private void getUserLocation() {
         //mMap.setMyLocationEnabled(true);
@@ -428,25 +638,4 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }
-
-    private void showAllUsersLocation() {
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference usersRef = rootRef.child("Users");
-        ValueEventListener eventListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()) {
-                    double latitude = ds.child("latitude").getValue(Double.class);
-                    double longitude = ds.child("longitude").getValue(Double.class);
-                    Log.d("TAG", latitude + " / " +  longitude);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        };
-        usersRef.addListenerForSingleValueEvent(eventListener);
-    }
-
-
 }
