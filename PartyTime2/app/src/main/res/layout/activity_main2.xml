@@ -159,6 +159,22 @@
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
+            <Switch
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
+                android:id="@+id/switch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:switchMinWidth="56dp"
+                android:layout_marginLeft="100dp"
+                android:layout_marginTop="120dp"
+                android:background="#ABffffff"
+                android:text=" Enable Location Tracking: "
+                android:textStyle="bold"
+                android:checked="false"
+                android:textOff="OFF"
+                android:textOn="ON"/>
+
         </RelativeLayout>
 
     </LinearLayout>

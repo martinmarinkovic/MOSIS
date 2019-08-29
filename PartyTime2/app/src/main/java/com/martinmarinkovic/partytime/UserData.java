@@ -26,7 +26,6 @@ public class UserData {
     private DatabaseReference database;
     private FirebaseUser mCurrentUser;
     public String current_uid;
-    private static final String FIREBASE_CHILD = "Users";
 
     private UserData() {
         usersList = new ArrayList<User>();
@@ -35,7 +34,7 @@ public class UserData {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
         database = FirebaseDatabase.getInstance().getReference();
-        database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
+        database.child("Users").child(current_uid).child("friends").addChildEventListener(childEventListener);
     }
 
     ChildEventListener childEventListener = new ChildEventListener() {
@@ -103,7 +102,7 @@ public class UserData {
         usersList.add(user);
         myPlacesKeyIndexMapping.put(key, usersList.size() - 1);
         user.key = key;
-        database.child(FIREBASE_CHILD).child(key).setValue(user);
+        database.child("Users").child(key).setValue(user);
     }
 
     public User getUser(int index) {

@@ -90,6 +90,16 @@
             app:srcCompat="@drawable/ic_user_location"
             tools:ignore="VectorDrawableCompat" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_get_all_users_location"
+            android:layout_alignParentRight="true"
+            android:layout_margin="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/black"
+            app:srcCompat="@drawable/ic_all_users_location"
+            tools:ignore="VectorDrawableCompat" />
+
     </LinearLayout>
 
 </RelativeLayout>

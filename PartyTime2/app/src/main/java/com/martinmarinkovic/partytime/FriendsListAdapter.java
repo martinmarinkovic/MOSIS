@@ -58,19 +58,10 @@ public class FriendsListAdapter extends ArrayAdapter<User> {
                 for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
                     friends_name.setText( singleSnapshot.getValue(User.class).getUsername());
                     image = singleSnapshot.getValue(User.class).getImage().toString();
-                    if (!image.equals("default")) {
-                        Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                                .placeholder(R.drawable.default_avatar).into(friend_profile_image, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(friend_profile_image);
-                            }
-                        });
-                    }
+                    if (!image.equals("default"))
+                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(friend_profile_image);
+                    else
+                        Picasso.get().load(R.drawable.default_avatar).into(friend_profile_image);
                 }
             }
 

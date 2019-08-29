@@ -13,6 +13,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
@@ -60,7 +62,7 @@ public class LocationService extends Service {
         userID = user.getUid();
         myRef = FirebaseDatabase.getInstance().getReference();
         currentUser = new User();
-        getCurrentUser();
+        //getCurrentUser();
 
         if (Build.VERSION.SDK_INT >= 26) {
             String CHANNEL_ID = "my_channel_01";
@@ -111,7 +113,7 @@ public class LocationService extends Service {
 
                         if (location != null) {
                             GeoPoint geoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                            UserLocation userLocation = new UserLocation(currentUser, geoPoint, null);
+                            UserLocation userLocation = new UserLocation(((UserClient)(getApplicationContext())).getUser(), geoPoint, null);
                             saveUserLocation(userLocation);
                         }
                     }
@@ -142,7 +144,7 @@ public class LocationService extends Service {
         }
     }
 
-    private void setUser(User user) {
+   /* private void setUser(User user) {
         currentUser = user;
     }
 
@@ -161,5 +163,12 @@ public class LocationService extends Service {
 
             }
         });
+    }*/
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Toast.makeText(LocationService.this, "UGASEN!!!", Toast.LENGTH_SHORT).show();
     }
 }

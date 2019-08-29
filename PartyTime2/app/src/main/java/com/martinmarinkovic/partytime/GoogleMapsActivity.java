@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 
 import android.location.Address;
@@ -49,6 +51,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -140,6 +143,17 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
+        FloatingActionButton fab_get_all_users_location = (FloatingActionButton) findViewById(R.id.fab_get_all_users_location);
+        fab_get_all_users_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mMap != null) {
+                    addMapMarkers();
+                    startUserLocationsRunnable();
+                }
+            }
+        });
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -183,23 +197,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         initTextListener();
     }
 
-    /*
-        @Override
-        public void onResume() {
-            super.onResume();
-            startUserLocationsRunnable(); // update user locations every 'LOCATION_UPDATE_INTERVAL'
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-        }
-    */
     static final int PERMISSION_ACCESS_FINE_LOCATION = 1;
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -225,7 +222,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
             }
             addMyPlaceMarkers();
-            addMapMarkers();
+            //addMapMarkers();
         }
     }
 
@@ -263,7 +260,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                         }
                     } else if (state == CENTER_PLACE_ON_MAP) {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 10));
                         setOnMapClickListener();//?????????????????
                         //treba da zmiramo na to konkretno mesto
                     } else {
@@ -349,8 +346,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void retrieveUserLocations() {
-        Log.d(TAG, "retrieveUserLocations: retrieving location of all users in the chatroom.");
-
         try {
             for (final ClusterMarker clusterMarker : mClusterMarkers) {
 
@@ -358,11 +353,12 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                         .child("User Locations")
                         .orderByKey()
                         .equalTo(clusterMarker.getUser().getUserID());
-                query.addValueEventListener(new ValueEventListener() {
+                query.addChildEventListener(new ChildEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         final UserLocation updatedUserLocation = dataSnapshot.getValue(UserLocation.class);
+
+                        //Toast.makeText(GoogleMapsActivity.this, dataSnapshot.getKey(), Toast.LENGTH_SHORT).show();
 
                         // update the location
                         for (int i = 0; i < mClusterMarkers.size(); i++) {
@@ -377,9 +373,24 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                                     mClusterMarkers.get(i).setPosition(updatedLatLng);
                                     mClusterManagerRenderer.setUpdateMarker(mClusterMarkers.get(i));
                                 }
+                            } catch (Exception e) {
                             }
-                            catch (Exception e){}
                         }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
                     }
 
                     @Override
@@ -411,17 +422,16 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
             for(UserLocation userLocation: mUserLocations){
 
-                Log.d(TAG, "addMapMarkers: location: " + userLocation.getGeo_point().toString());
                 try{
                     String snippet = "";
                     if(userLocation.getUser().getUserID().equals(FirebaseAuth.getInstance().getUid())){
-                        snippet = "This is you";
+                        //snippet = "This is you";
                     }
                     else{
-                        snippet = "This is your friend ";
+                        //snippet = "This is your friend ";
                     }
 
-                    String avatar = String.valueOf(R.drawable.default_avatar); // set the default avatar
+                    String avatar = "default";
                     try{
                         avatar = userLocation.getUser().image;
                     }catch (NumberFormatException e){}
@@ -429,7 +439,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                     ClusterMarker newClusterMarker = new ClusterMarker(
                             new LatLng(userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude()),
                             userLocation.getUser().getUsername(),
-                            snippet,
+                            //snippet,
                             avatar,
                             userLocation.getUser()
                     );
@@ -442,18 +452,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
             mClusterManager.cluster();
 
-            mClusterManager.setOnClusterClickListener(
-                    new ClusterManager.OnClusterClickListener<ClusterMarker>() {
-                        @Override
-                        public boolean onClusterClick(Cluster<ClusterMarker> cluster) {
-
-                            Toast.makeText(GoogleMapsActivity.this, "Cluster click", Toast.LENGTH_SHORT).show();
-
-                            return false;
-                        }
-                    });
-
-                    mClusterManager.setOnClusterItemClickListener(
+            /*        mClusterManager.setOnClusterItemClickListener(
                             new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
                                 @Override
                                 public boolean onClusterItemClick(ClusterMarker clusterItem) {
@@ -467,17 +466,23 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                                     startActivity(intent);
                                     return false;
                                 }
-                            });
+                            });*/
 
             mClusterManager.setOnClusterItemInfoWindowClickListener(
                     new ClusterManager.OnClusterItemInfoWindowClickListener<ClusterMarker>() {
                         @Override public void onClusterItemInfoWindowClick(ClusterMarker clusterItem) {
-                            Toast.makeText(GoogleMapsActivity.this, "Clicked info window: " + clusterItem.getTitle(),
-                                    Toast.LENGTH_SHORT).show();
+
+                            String userID = clusterItem.getUser().getUserID();
+                            Bundle positionBundle = new Bundle();
+                            positionBundle.putString("userID", userID);
+                            positionBundle.putString("activity", "FriendsList");
+                            Intent intent = new Intent(GoogleMapsActivity.this, UserProfile.class);
+                            intent.putExtras(positionBundle);
+                            startActivity(intent);
                         }
                     });
 
-            mMap.setOnMarkerClickListener(mClusterManager);
+            //mMap.setOnMarkerClickListener(mClusterManager);
 
             mMap.setOnInfoWindowClickListener(mClusterManager);
         }
@@ -637,5 +642,32 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //startUserLocationsRunnable(); // update user locations every 'LOCATION_UPDATE_INTERVAL'
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdates();
     }
 }

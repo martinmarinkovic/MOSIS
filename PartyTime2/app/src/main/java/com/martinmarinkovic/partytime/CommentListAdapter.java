@@ -73,20 +73,11 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
                     username.setText( singleSnapshot.getValue(User.class).getFirstname());
                     image = singleSnapshot.getValue(User.class).getImage().toString();
 
-                    if (!image.equals("default")) {
-                        //placeHolder stavljamo zbog problema kada treba malo vremen da ocita sliku
-                        Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                                .placeholder(R.drawable.default_avatar).into(profileImage, new Callback() {
-                            @Override
-                            public void onSuccess() {
-                            }
+                    if (!image.equals("default"))
+                        Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
+                    else
+                        Picasso.get().load(R.drawable.default_avatar).into(profileImage);
 
-                            @Override
-                            public void onError(Exception e) {
-                                Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(profileImage);
-                            }
-                        });
-                    }
                 }
             }
 

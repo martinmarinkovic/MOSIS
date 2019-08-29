@@ -17,6 +17,8 @@ package com.martinmarinkovic.partytime;
 // inicijalnog učitavanja iz baze podataka kao i prilikom promena koje su izvršene nad podacima. Pošto je osnovni model podataka aplikacije lista, u tom cilju
 // je potrebno dodati ChildEventListener i SingleValueListener referenci baze podataka kako bi promene bile ispravno praćene.
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -46,13 +48,16 @@ public class MyPlacesData {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
         database = FirebaseDatabase.getInstance().getReference();
-        database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
+        database.child(FIREBASE_CHILD).keepSynced(true);
+        setParentEventListener(updatedEventListener);
         database.child(FIREBASE_CHILD).addListenerForSingleValueEvent(parentEventListener);
+        database.child(FIREBASE_CHILD).addChildEventListener(childEventListener);
     }
 
     ValueEventListener parentEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
             if (updatedEventListener != null)
                 updatedEventListener.onListUpdated();
         }

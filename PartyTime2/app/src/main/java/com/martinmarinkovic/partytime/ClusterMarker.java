@@ -19,6 +19,13 @@ public class ClusterMarker implements ClusterItem {
         this.user = user;
     }
 
+    public ClusterMarker(LatLng position, String title, String iconPicture, User user) {
+        this.position = position;
+        this.title = title;
+        this.iconPicture = iconPicture;
+        this.user = user;
+    }
+
     public String getIconPicture() {
         return iconPicture;
     }

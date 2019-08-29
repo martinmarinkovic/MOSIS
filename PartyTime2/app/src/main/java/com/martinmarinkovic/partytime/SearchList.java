@@ -17,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -32,6 +34,7 @@ public class SearchList extends AppCompatActivity {
     private List<MyPlace> mPlacesList, lista, places, placesInRadius;
     private ListView myPlacesListView;
     private String searchRadius, searchType;
+    private Double radious;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +69,17 @@ public class SearchList extends AppCompatActivity {
 
         if(!searchRadius.equals("None")) {
             Toast.makeText(SearchList.this, "UPAO NAPOKON : " + searchRadius, Toast.LENGTH_SHORT).show();
+            if (searchRadius.equals("1 KM"))
+                radious = 1.0;
+            if (searchRadius.equals("5 KM"))
+                radious = 5.0;
+            if (searchRadius.equals("10 KM"))
+                radious = 10.0;
+
             double lat1 = 43.3192446751;
             double lon1 = 21.8983865529;
             for (MyPlace myPlace : places) {
-                if (getDistance(lat1, lon1, Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude())) < 1) {
+                if (getDistance(lat1, lon1, Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude())) < radious) {
                     placesInRadius.add(myPlace);
                 }
             }
@@ -78,6 +88,23 @@ public class SearchList extends AppCompatActivity {
         }
 
         myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(SearchList.this, android.R.layout.simple_list_item_1, places));
+        myPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                MyPlace place = MyPlacesData.getInstance().findPlace(places.get(position).key);
+                if (place != null) {
+                    //Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(SearchList.this, GoogleMapsActivity.class);
+                    i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
+                    i.putExtra("lat", place.getLatitude());
+                    i.putExtra("lon", place.getLongitude());
+                    startActivity(i);
+                }//else
+                    //Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                hideSoftKeyboard();
+            }
+        });
 
         hideSoftKeyboard();
         initTextListener();
@@ -135,6 +162,18 @@ public class SearchList extends AppCompatActivity {
         myPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                MyPlace place = MyPlacesData.getInstance().findPlace(mPlacesList.get(position).key);
+                if (place != null) {
+                    Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent(SearchList.this, GoogleMapsActivity.class);
+                    i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
+                    i.putExtra("lat", place.getLatitude());
+                    i.putExtra("lon", place.getLongitude());
+                    startActivity(i);
+                }else
+                    Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                hideSoftKeyboard();
             }
         });
     }

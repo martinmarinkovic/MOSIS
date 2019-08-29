@@ -25,7 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword, inputFirstName, inputLastName, inputUsername;
-    private Button btnSignIn, btnSignUp, btnResetPassword;
+    private Button btnSignIn, btnSignUp;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
     private DatabaseReference databaseReference;
@@ -36,11 +36,6 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        auth = FirebaseAuth.getInstance();
-        firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference();
-        check = false;
-
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
@@ -49,6 +44,11 @@ public class RegisterActivity extends AppCompatActivity {
         inputLastName = (EditText) findViewById(R.id.lastname);
         inputUsername = (EditText) findViewById(R.id.username);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference();
+        auth = FirebaseAuth.getInstance();
+        check = false;
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,11 +104,11 @@ public class RegisterActivity extends AppCompatActivity {
                         .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(RegisterActivity.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(RegisterActivity.this, "Successful Authentication!" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
 
                                 if (!task.isSuccessful()) {
-                                    Toast.makeText(RegisterActivity.this, "Authentication failed." + task.getException(),
+                                    Toast.makeText(RegisterActivity.this, "Authentication Failed!" + task.getException(),
                                             Toast.LENGTH_SHORT).show();
                                 } else {
                                     sendVerificationEmail();
@@ -119,7 +119,6 @@ public class RegisterActivity extends AppCompatActivity {
                                             .child(uid)
                                             .setValue(newUser);
 
-                                    //startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                                     finish();
                                 }
                             }

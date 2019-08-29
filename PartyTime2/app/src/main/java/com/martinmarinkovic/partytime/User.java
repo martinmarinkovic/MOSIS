@@ -1,8 +1,11 @@
 package com.martinmarinkovic.partytime;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.database.Exclude;
 
-public class User {
+public class User implements Parcelable {
     public String firstname;
     public String lastname;
     public String username;
@@ -36,6 +39,29 @@ public class User {
         this.status = status;
         this.thumb_image = thumb_image;
     }
+
+    protected User(Parcel in) {
+        firstname = in.readString();
+        lastname = in.readString();
+        username = in.readString();
+        image = in.readString();
+        userID = in.readString();
+        status = in.readString();
+        thumb_image = in.readString();
+        key = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
 
     public String getFirstname() {
         return firstname;
@@ -91,5 +117,22 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(firstname);
+        dest.writeString(lastname);
+        dest.writeString(username);
+        dest.writeString(image);
+        dest.writeString(userID);
+        dest.writeString(status);
+        dest.writeString(thumb_image);
+        dest.writeString(key);
     }
 }

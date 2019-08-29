@@ -29,6 +29,7 @@
         android:required="true"/>
 
     <application
+        android:name=".UserClient"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -96,7 +97,8 @@
             android:parentActivityName=".MainActivity" />
         <activity android:name=".PlaceProfile" />
         <activity android:name=".AddNewPlace" />
-        <activity android:name=".MyPlacesList" />
+        <activity android:name=".MyPlacesList"
+            android:parentActivityName=".MainActivity"/>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -123,5 +125,4 @@
             android:stopWithTask="true" />
 
     </application>
-
 </manifest>

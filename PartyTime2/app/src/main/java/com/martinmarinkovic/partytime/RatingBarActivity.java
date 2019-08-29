@@ -53,7 +53,6 @@ public class RatingBarActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 returnIntent.putExtra("userRatingInt", userRatingInt);
                 setResult(RESULT_OK, returnIntent);
-                Toast.makeText(RatingBarActivity.this, "Ocena: " + userRatingInt, Toast.LENGTH_SHORT).show();
                 finish();
             }
         });

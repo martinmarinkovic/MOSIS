@@ -38,7 +38,7 @@
     <string name="about">About</string>
     <string name="my_places_list">My Places List</string>
     <string name="sign_out">Sign Out</string>
-    <string name="about_text">My Places - Find NearBy Places" mobile application lets you search all Places nearby your current geolocation. It have easy to use and simple User Interface and backed up with many useful options like marking any place as "Favourite" place so that you can access the place with just one click, You can also book an UBER ride to that place via this applications + there are lots of feature packed in this application. </string>
+    <string name="about_text"> Party Time je aplikacija koja omogucuje korisniku da pronadje idelano mesto za nocni provod! </string>
     <string name="ok">OK</string>
     <string name="title_activity_my_places_list">MyPlacesList</string>
     <string name="title_activity_edit_my_place">EditMyPlaceActivity</string>
@@ -90,9 +90,6 @@
         <item> 1 KM </item>
         <item> 5 KM </item>
         <item> 10 KM </item>
-        <item> 20 KM </item>
-        <item> 50 KM </item>
-        <item> 100 KM </item>
     </string-array>
 
 </resources>

@@ -44,10 +44,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import java.net.CacheRequest;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
     private UserLocation mUserLocation;
     private DatabaseReference myRef;
+    private Switch sw;
+    private ArrayList<MyPlace> list1, list2;
+    private ArrayList<User> list3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +85,12 @@ public class MainActivity extends AppCompatActivity {
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
         myRef = FirebaseDatabase.getInstance().getReference();
+        list1 = new ArrayList<>();
+        list2 = new ArrayList<>();
+        list3 = new ArrayList<>();
+        list1 = MyPlacesData.getInstance().getMyPlaces();
+        list2 = AllPlacesData.getInstance().getMyPlaces();
+        list3 = UserData.getInstance().getUsersList();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -121,6 +134,20 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+
+        sw = (Switch) findViewById(R.id.switch1);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    startLocationService();
+                } else {
+                    Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
+                    //unbindService();???????????
+                    stopService(new Intent(serviceIntent));
+                }
+            }
+        });
     }
 
     private void startLocationService(){
@@ -157,11 +184,14 @@ public class MainActivity extends AppCompatActivity {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
-                    if (user != null)
-                        mUserLocation.setUser(user);
-                        //((UserClient)(getApplicationContext())).setUser(user);
-                        getLastKnownLocation();
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                        User user = dataSnapshot1.getValue(User.class);
+                        if (user != null) {
+                            mUserLocation.setUser(user);
+                            ((UserClient) (getApplicationContext())).setUser(user);
+                            getLastKnownLocation();
+                        }
+                    }
                 }
 
                 @Override
@@ -187,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                     mUserLocation.setGeo_point(geoPoint);
                     mUserLocation.setTimestamp(null);
                     saveUserLocation();
-                    startLocationService();
+                    //startLocationService();
                 }
             }
         });

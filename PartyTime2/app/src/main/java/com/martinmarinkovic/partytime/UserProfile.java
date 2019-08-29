@@ -114,19 +114,11 @@ public class UserProfile extends AppCompatActivity {
                 mStatus.setText(status);
                 mUsername.setText(username);
 
-                if(!image.equals("default")) {
-                    Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                            .placeholder(R.drawable.default_avatar).into(mDisplayImage, new Callback() {
-                        @Override
-                        public void onSuccess() {
-                        }
+                if (!image.equals("default"))
+                    Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
+                else
+                    Picasso.get().load(R.drawable.default_avatar).into(mDisplayImage);
 
-                        @Override
-                        public void onError(Exception e) {
-                            Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
-                        }
-                    });
-                }
             }
 
             @Override

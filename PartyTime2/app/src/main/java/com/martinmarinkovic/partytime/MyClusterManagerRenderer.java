@@ -41,16 +41,16 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
         iconGenerator.setContentView(imageView);
     }
 
-    /**
-     * Rendering of the individual ClusterItems
-     * @param item
-     * @param markerOptions
-     */
     @Override
     protected void onBeforeClusterItemRendered(ClusterMarker item, MarkerOptions markerOptions) {
 
+        if (!item.getIconPicture().equals("default"))
+            Picasso.get().load(item.getIconPicture()).placeholder(R.drawable.default_avatar).into(imageView);
+        else
+            Picasso.get().load(R.drawable.default_avatar).into(imageView);
+
         //imageView.setImageResource(item.getIconPicture());
-        Picasso.get().load(item.getIconPicture()).into(imageView);
+        //Picasso.get().load(item.getIconPicture()).into(imageView);
         Bitmap icon = iconGenerator.makeIcon();
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
     }

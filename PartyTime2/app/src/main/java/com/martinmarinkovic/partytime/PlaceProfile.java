@@ -69,8 +69,6 @@ public class PlaceProfile extends AppCompatActivity {
             finish();
         }
 
-        Toast.makeText(PlaceProfile.this, friendPlaceID, Toast.LENGTH_SHORT).show();
-
         if (position >= 0) {
 
             MyPlace place = null;
@@ -103,21 +101,11 @@ public class PlaceProfile extends AppCompatActivity {
             final ImageView displayImage = (ImageView) findViewById(R.id.my_place_image);
             final String image = place.getImage().toString();
 
-            if (!image.equals("default")) {
-                Toast.makeText(PlaceProfile.this, image + "UCITAOOO!!!", Toast.LENGTH_SHORT).show();
-                Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE)
-                        .placeholder(R.drawable.image_placeholder).into(displayImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                    }
+            if (!image.equals("default"))
+                Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(displayImage);
+            else
+                Picasso.get().load(R.drawable.image_placeholder).into(displayImage);
 
-                    @Override
-                    public void onError(Exception e) {
-                        Toast.makeText(PlaceProfile.this, "GRESKAAAAAA!!!", Toast.LENGTH_SHORT).show();
-                        Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(displayImage);
-                    }
-                });
-            }
 
         }
 
@@ -156,7 +144,6 @@ public class PlaceProfile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (rating >= 0) {
-                    Toast.makeText(PlaceProfile.this, rating + "", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(PlaceProfile.this, RatingBarActivity.class);
                     i.putExtra("rating", rating);
                     startActivityForResult(i, 1);
@@ -172,7 +159,6 @@ public class PlaceProfile extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 float result = data.getFloatExtra("userRatingInt", 0);
-                Toast.makeText(PlaceProfile.this, result + "", Toast.LENGTH_SHORT).show();
 
                 if(firtsTime) {
                     numOfRatings++;
@@ -232,8 +218,6 @@ public class PlaceProfile extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 myRating = dataSnapshot.getValue(Rating.class);
-                Toast.makeText(PlaceProfile.this, "NASO:  " + myRating.getRating(), Toast.LENGTH_LONG).show();
-
                 rating = myRating.getRating();
                 oldRating = rating;
                 firtsTime = false;
@@ -242,7 +226,6 @@ public class PlaceProfile extends AppCompatActivity {
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 myRating = dataSnapshot.getValue(Rating.class);
-                Toast.makeText(PlaceProfile.this, "NASO:  " + myRating, Toast.LENGTH_LONG).show();
             }
 
             @Override

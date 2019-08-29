@@ -150,51 +150,6 @@ public class CommentsView extends AppCompatActivity {
     }
 
     public void getComment() {
-        /*
-        myRef.child("my-places")
-                .child(placeID)
-                .child("comments")
-                .addChildEventListener(new ChildEventListener() { //da bi komentari uvek bili azurirani
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Log.d(TAG, "onChildAdded: child added.");
-
-                        Query query = myRef
-                                .child("my-places")
-                                .orderByChild("key")
-                                .equalTo(placeID);
-                        query.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
-                                    for (DataSnapshot dSnapshot : singleSnapshot
-                                            .child("comments").getChildren()){
-                                        Comment comment = new Comment();
-                                        comment.setUser_id(dSnapshot.getValue(Comment.class).getUser_id());
-                                        comment.setComment(dSnapshot.getValue(Comment.class).getComment());
-                                        comment.setDate_created(dSnapshot.getValue(Comment.class).getDate_created());
-                                        mComments.add(comment);
-                                    }
-                                    //place.setComments(mComments);
-                                    //setupWidgets();
-                                }
-                            }
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                Log.d(TAG, "onCancelled: query cancelled.");
-                            }
-                        });
-                    }
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) { }
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
-        */
 
         Query query = myRef
                 .child("my-places")
@@ -229,39 +184,5 @@ public class CommentsView extends AppCompatActivity {
 
             }
         });
-
-        /*
-        Query query = myRef
-                .child("my-places")
-                .child(placeID)
-                .child("comments");
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for ( DataSnapshot singleSnapshot :  dataSnapshot.getChildren()){
-                    Comment comment = singleSnapshot.getValue(Comment.class);
-                    Toast.makeText(CommentsView.this, comment.toString(), Toast.LENGTH_SHORT).show();
-                    mComments.add(comment);
-                }
-
-                Query query = FirebaseDatabase.getInstance().getReference()
-                        .child("places")
-                        .child(placeID);
-                query.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        CommentListAdapter adapter = new CommentListAdapter(CommentsView.this, mComments);
-                        mListView.setAdapter(adapter);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) { }
-        });*/
     }
 }
