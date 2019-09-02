@@ -15,24 +15,18 @@ import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 import com.squareup.picasso.Picasso;
 
-public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker>
-{
+public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMarker> {
 
-    private final IconGenerator iconGenerator; //za imagre rendering - prikazivanje slika
+    private final IconGenerator iconGenerator;
     private final ImageView imageView;
     private final int markerWidth;
     private final int markerHeight;
 
-    public MyClusterManagerRenderer(Context context, GoogleMap googleMap,
-                                    ClusterManager<ClusterMarker> clusterManager) {
-
+    public MyClusterManagerRenderer(Context context, GoogleMap googleMap, ClusterManager<ClusterMarker> clusterManager) {
         super(context, googleMap, clusterManager);
 
-        // initialize cluster item icon generator
-        //iconGenerator = new IconGenerator(context.getApplicationContext());
-        //imageView = new ImageView(context.getApplicationContext());
-        iconGenerator = new IconGenerator(context);
-        imageView = new ImageView(context);
+        iconGenerator = new IconGenerator(context.getApplicationContext());
+        imageView = new ImageView(context.getApplicationContext());
         markerWidth = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
         markerHeight = (int) context.getResources().getDimension(R.dimen.custom_marker_image);
         imageView.setLayoutParams(new ViewGroup.LayoutParams(markerWidth, markerHeight));
@@ -49,23 +43,15 @@ public class MyClusterManagerRenderer extends DefaultClusterRenderer<ClusterMark
         else
             Picasso.get().load(R.drawable.default_avatar).into(imageView);
 
-        //imageView.setImageResource(item.getIconPicture());
-        //Picasso.get().load(item.getIconPicture()).into(imageView);
         Bitmap icon = iconGenerator.makeIcon();
         markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon)).title(item.getTitle());
     }
 
-
-    // Ako su na identicnoj lokaciji da vraca samo 1 sliku!
     @Override
     protected boolean shouldRenderAsCluster(Cluster cluster) {
         return false;
     }
 
-    /**
-     * Update the GPS coordinate of a ClusterItem
-     * @param clusterMarker
-     */
     public void setUpdateMarker(ClusterMarker clusterMarker) {
         Marker marker = getMarker(clusterMarker);
         if (marker != null) {

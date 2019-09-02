@@ -118,13 +118,10 @@ public class UserProfile extends AppCompatActivity {
                     Picasso.get().load(image).placeholder(R.drawable.default_avatar).into(mDisplayImage);
                 else
                     Picasso.get().load(R.drawable.default_avatar).into(mDisplayImage);
-
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) { }
         });
 
         mImageBtn.setOnClickListener(new View.OnClickListener() {
@@ -163,8 +160,7 @@ public class UserProfile extends AppCompatActivity {
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
-            CropImage.ActivityResult result = CropImage.getActivityResult(data); // resulztat je iseecena slika, uzimamo ono sto smo isekli
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
 
             if (resultCode == RESULT_OK) {
                 mProgressDialog = new ProgressDialog(UserProfile.this);
@@ -187,7 +183,6 @@ public class UserProfile extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                //Kreirami izlazni niz! Konvertujrmo podatke u byte yip podataka da bi mogli da je uploadujemo u firebase storage
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 thumb_bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 final byte[] thumb_byte = baos.toByteArray();
@@ -198,11 +193,9 @@ public class UserProfile extends AppCompatActivity {
                 filepath.putFile(resultUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
                         filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-
                                 Map update_hashMap = new HashMap();
                                 update_hashMap.put("image", uri.toString());
                                 //update_hashMap.put("thumb_image", thumb_downloadUrl);
@@ -231,14 +224,20 @@ public class UserProfile extends AppCompatActivity {
         if (activity.equals("Main")) {
             getMenuInflater().inflate(R.menu.menu_user_profile, menu);
             return true;
+        } else {
+            getMenuInflater().inflate(R.menu.menu, menu);
+            return true;
         }
-        else return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        if(id == android.R.id.home){
+            finish();
+            return true;
+        }
         if (id == R.id.settings) {
             String status_value = mStatus.getText().toString();
             String username_value = mUsername.getText().toString();
@@ -249,5 +248,4 @@ public class UserProfile extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }

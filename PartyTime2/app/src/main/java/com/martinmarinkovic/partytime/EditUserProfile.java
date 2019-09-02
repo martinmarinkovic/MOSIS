@@ -1,6 +1,7 @@
 package com.martinmarinkovic.partytime;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
@@ -25,6 +26,8 @@ import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -38,26 +41,27 @@ public class EditUserProfile extends AppCompatActivity {
     private FirebaseUser mCurrentUser;
     private ProgressDialog mProgress;
     private String current_uid;
-    String username;
-    Boolean check;
+    private String username;
+    private Boolean check;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_user_profile);
-        mStatus = (TextInputLayout) findViewById(R.id.status_input);
-        mUsername = (TextInputLayout) findViewById(R.id.username_input);
-        mSavebtn = (Button) findViewById(R.id.status_save_btn);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Edit Profile");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        mStatus = (TextInputLayout) findViewById(R.id.status_input);
+        mUsername = (TextInputLayout) findViewById(R.id.username_input);
+        mSavebtn = (Button) findViewById(R.id.status_save_btn);
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid);
+
         String status_value = getIntent().getStringExtra("status_value");
         String username_value = getIntent().getStringExtra("username_value");
         mStatus.getEditText().setText(status_value);
@@ -67,12 +71,10 @@ public class EditUserProfile extends AppCompatActivity {
 
         mUsername.getEditText().addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -120,7 +122,6 @@ public class EditUserProfile extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 if(!dataSnapshot.exists()){
-                    //add the username
                     updateUsername(username);
                     Toast.makeText(EditUserProfile.this, "Saved username.", Toast.LENGTH_SHORT).show();
                 }
@@ -158,4 +159,20 @@ public class EditUserProfile extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

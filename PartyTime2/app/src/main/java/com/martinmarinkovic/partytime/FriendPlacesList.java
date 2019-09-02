@@ -7,6 +7,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -79,7 +81,6 @@ public class FriendPlacesList extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String placeID = placesList.get(position).getID();
-                Toast.makeText(FriendPlacesList.this, placesList.get(position).getName() +"  :  "+ placeID, Toast.LENGTH_SHORT).show();
                 Bundle positionBundle = new Bundle();
                 positionBundle.putString("placeID", placeID);
                 positionBundle.putInt("activity", 3);
@@ -88,5 +89,23 @@ public class FriendPlacesList extends AppCompatActivity {
                 startActivity(i);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

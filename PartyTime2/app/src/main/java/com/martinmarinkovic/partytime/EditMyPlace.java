@@ -104,12 +104,10 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
         cancelButton.setOnClickListener(this);
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -119,12 +117,10 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
 
         descEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -157,8 +153,6 @@ public class EditMyPlace extends AppCompatActivity implements View.OnClickListen
 
                 mPlaceDatabase.child("name").setValue(name);
                 mPlaceDatabase.child("description").setValue(desc);
-                //AllPlacesData.getInstance().updatePlace(position, name, desc);
-                //MyPlacesData.getInstance().updatePlace(placeID, name, desc);
                 mUserDatabase.child("name").setValue(name);
                 mUserDatabase.child("description").setValue(desc);
 

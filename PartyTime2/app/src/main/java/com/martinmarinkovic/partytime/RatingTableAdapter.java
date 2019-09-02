@@ -52,9 +52,9 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
         image = myPlace.getImage();
 
         if (!image.equals("default"))
-            Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(place_profile_image);
+            Picasso.get().load(image).placeholder(R.drawable.default_place_profile).into(place_profile_image);
         else
-            Picasso.get().load(R.drawable.image_placeholder).into(place_profile_image);
+            Picasso.get().load(R.drawable.default_place_profile).into(place_profile_image);
 
         return listView;
     }

@@ -95,7 +95,6 @@ public class LocationService extends Service {
         mLocationRequestHighAccuracy.setInterval(UPDATE_INTERVAL);
         mLocationRequestHighAccuracy.setFastestInterval(FASTEST_INTERVAL);
 
-        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "getLocation: stopping the location service.");
@@ -144,31 +143,10 @@ public class LocationService extends Service {
         }
     }
 
-   /* private void setUser(User user) {
-        currentUser = user;
-    }
-
-    private void getCurrentUser() {
-        mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
-        mUserDatabase.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
-                if (user != null)
-                    setUser(user);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }*/
-
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        Toast.makeText(LocationService.this, "UGASEN!!!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(LocationService.this, "Location tracking is disabled!", Toast.LENGTH_SHORT).show();
     }
 }

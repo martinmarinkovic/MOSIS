@@ -2,6 +2,8 @@ package com.martinmarinkovic.partytime;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,7 +62,6 @@ public class CommentListAdapter extends ArrayAdapter<Comment> {
         final Comment c = commentsList.get(position);
         comment.setText(c.getComment());
 
-        //set the username and profile image
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
         Query query = reference
                 .child("Users")

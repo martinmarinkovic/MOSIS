@@ -41,18 +41,8 @@ public class AllPlacesList extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        /*try {
-            Intent listIntent = getIntent();
-            Bundle userBundle = listIntent.getExtras();
-            userID = userBundle.getString("userID");
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            finish();
-        }*/
-
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         userID = mCurrentUser.getUid();
-
         mUserDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(userID).child("my-places");
 
         final ListView myPlacesList = (ListView)findViewById(R.id.my_places_list);

@@ -57,13 +57,15 @@
                 android:value="com.martinmarinkovic.partytime.MainActivity" />
         </activity>
         <activity android:name=".RatingBarActivity" />
-        <activity android:name=".AddNewFriend" />
+        <activity android:name=".AddNewFriend"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".CommentsView" />
         <activity android:name=".AddMyPlacePhoto" />
         <activity
             android:name=".AllPlacesList"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".About" />
+        <activity android:name=".About"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -75,10 +77,9 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".UserProfile"
-            android:label="@string/title_activity_user_profile"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".EditMyPlace" />
+            android:label="@string/title_activity_user_profile" />
+        <activity android:name=".EditMyPlace"
+            android:parentActivityName=".AllPlacesList"/>
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

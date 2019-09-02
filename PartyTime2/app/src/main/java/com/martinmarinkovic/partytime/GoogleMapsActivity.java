@@ -118,6 +118,8 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         if (mUserLocations.size() == 0)
             mUserLocations = UserData.getInstance().getUserLocationsList();
 
+        Toast.makeText(GoogleMapsActivity.this, mUserLocations.size() + "", Toast.LENGTH_SHORT).show();
+
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -260,9 +262,9 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                         }
                     } else if (state == CENTER_PLACE_ON_MAP) {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 10));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 5));
                         setOnMapClickListener();//?????????????????
-                        //treba da zmiramo na to konkretno mesto
+                        //treba da zumiramo na to konkretno mesto
                     } else {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                     }
@@ -431,10 +433,11 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                         //snippet = "This is your friend ";
                     }
 
-                    String avatar = "default";
-                    try{
+                    //String avatar = "default";
+                    String avatar = userLocation.getUser().image;
+                    /*try{
                         avatar = userLocation.getUser().image;
-                    }catch (NumberFormatException e){}
+                    }catch (NumberFormatException e){}*/
 
                     ClusterMarker newClusterMarker = new ClusterMarker(
                             new LatLng(userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude()),

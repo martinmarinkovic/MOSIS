@@ -29,7 +29,6 @@ public class AllPlacesData {
         myPlacesKeyIndexMapping = new HashMap<String, Integer>();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
-        //current_uid = userID;
         database = FirebaseDatabase.getInstance().getReference().child("Users").child(current_uid).child("my-places");
         database.addChildEventListener(childEventListener);
         database.addListenerForSingleValueEvent(parentEventListener);
@@ -80,14 +79,10 @@ public class AllPlacesData {
         }
 
         @Override
-        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-        }
+        public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
         @Override
-        public void onCancelled(@NonNull DatabaseError databaseError) {
-
-        }
+        public void onCancelled(@NonNull DatabaseError databaseError) {}
     };
 
     ValueEventListener parentEventListener = new ValueEventListener() {

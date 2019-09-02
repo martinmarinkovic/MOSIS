@@ -33,13 +33,9 @@ public class AddFriendListAdapter extends ArrayAdapter<BluetoothDevice> {
 
         if (device != null) {
             TextView deviceName = (TextView) convertView.findViewById(R.id.tvDeviceName);
-            TextView deviceAdress = (TextView) convertView.findViewById(R.id.tvDeviceAddress);
 
             if (deviceName != null) {
                 deviceName.setText(device.getName());
-            }
-            if (deviceAdress != null) {
-                deviceAdress.setText(device.getAddress());
             }
         }
 

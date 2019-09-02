@@ -26,6 +26,7 @@ public class UserData {
     private DatabaseReference database;
     private FirebaseUser mCurrentUser;
     public String current_uid;
+    public UserLocation currentUserLocation;
 
     private UserData() {
         usersList = new ArrayList<User>();
@@ -35,6 +36,7 @@ public class UserData {
         current_uid = mCurrentUser.getUid();
         database = FirebaseDatabase.getInstance().getReference();
         database.child("Users").child(current_uid).child("friends").addChildEventListener(childEventListener);
+        currentUserLocation = new UserLocation();
     }
 
     ChildEventListener childEventListener = new ChildEventListener() {
@@ -115,7 +117,7 @@ public class UserData {
             myPlacesKeyIndexMapping.put(usersList.get(i).key, i);
     }
 
-    public void getUserLocations(User user){
+    public void getUserLocations(final User user){
         database.child("User Locations").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -123,7 +125,10 @@ public class UserData {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     if (ds != null){
                         UserLocation userLocation = ds.getValue(UserLocation.class);
-                        usersLocationList.add(userLocation);
+                        if (userLocation.getUser().getUserID().equals(user.getUserID()) || userLocation.getUser().getUserID().equals(current_uid))
+                            usersLocationList.add(userLocation);
+                        if (userLocation.getUser().userID.equals(current_uid))
+                            currentUserLocation = userLocation;
                     }
                 }
             }
@@ -137,5 +142,9 @@ public class UserData {
 
     public ArrayList<UserLocation> getUserLocationsList(){
         return usersLocationList;
+    }
+
+    public UserLocation getCurrentUserLocation(){
+        return currentUserLocation;
     }
 }

@@ -5,9 +5,9 @@ import com.google.maps.android.clustering.ClusterItem;
 
 public class ClusterMarker implements ClusterItem {
 
-    private LatLng position; // required field
-    private String title; // required field
-    private String snippet; // required field
+    private LatLng position;
+    private String title;
+    private String snippet;
     private String iconPicture;
     private User user;
 

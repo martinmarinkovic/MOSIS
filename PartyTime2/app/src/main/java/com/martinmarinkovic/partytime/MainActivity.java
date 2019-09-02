@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
                     startLocationService();
                 } else {
                     Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
-                    //unbindService();???????????
+                    //unbindService();
                     stopService(new Intent(serviceIntent));
                 }
             }

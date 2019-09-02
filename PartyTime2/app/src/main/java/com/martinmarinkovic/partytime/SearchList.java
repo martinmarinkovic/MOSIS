@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,6 +35,7 @@ public class SearchList extends AppCompatActivity {
     private List<MyPlace> mPlacesList, lista, places, placesInRadius;
     private ListView myPlacesListView;
     private String searchRadius, searchType;
+    private ImageView searchBtn;
     private Double radious;
 
     @Override
@@ -41,11 +43,22 @@ public class SearchList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_list);
 
+        searchBtn = (ImageView) findViewById(R.id.select_catgory);
         mSearchText = (EditText) findViewById(R.id.input_search);
         myPlacesListView = (ListView)findViewById(R.id.listView);
-        lista = AllPlacesData.getInstance().getMyPlaces();
+        lista = MyPlacesData.getInstance().getMyPlaces();
         places = new ArrayList<>();
         placesInRadius = new ArrayList<>();
+
+        UserLocation currentUserLocation = UserData.getInstance().getCurrentUserLocation();
+
+        searchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SearchList.this, SearchByAtributes.class);
+                startActivity(intent);
+            }
+        });
 
         try {
             Intent searchIntent = getIntent();
@@ -65,10 +78,10 @@ public class SearchList extends AppCompatActivity {
                 }
             }
         else
-            places = lista;
+            places.addAll(lista);
 
         if(!searchRadius.equals("None")) {
-            Toast.makeText(SearchList.this, "UPAO NAPOKON : " + searchRadius, Toast.LENGTH_SHORT).show();
+
             if (searchRadius.equals("1 KM"))
                 radious = 1.0;
             if (searchRadius.equals("5 KM"))
@@ -76,15 +89,16 @@ public class SearchList extends AppCompatActivity {
             if (searchRadius.equals("10 KM"))
                 radious = 10.0;
 
-            double lat1 = 43.3192446751;
-            double lon1 = 21.8983865529;
+            double lat1 = currentUserLocation.getGeo_point().getLatitude();
+            double lon1 = currentUserLocation.getGeo_point().getLongitude();
+
             for (MyPlace myPlace : places) {
                 if (getDistance(lat1, lon1, Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude())) < radious) {
                     placesInRadius.add(myPlace);
                 }
             }
             places.clear();
-            places = placesInRadius;
+            places.addAll(placesInRadius);
         }
 
         myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(SearchList.this, android.R.layout.simple_list_item_1, places));
@@ -94,20 +108,27 @@ public class SearchList extends AppCompatActivity {
 
                 MyPlace place = MyPlacesData.getInstance().findPlace(places.get(position).key);
                 if (place != null) {
-                    //Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
                     Intent i = new Intent(SearchList.this, GoogleMapsActivity.class);
                     i.putExtra("state", GoogleMapsActivity.CENTER_PLACE_ON_MAP);
                     i.putExtra("lat", place.getLatitude());
                     i.putExtra("lon", place.getLongitude());
                     startActivity(i);
-                }//else
-                    //Toast.makeText(SearchList.this, "DA!!!!!!!!!", Toast.LENGTH_SHORT).show();
+                }
+
                 hideSoftKeyboard();
             }
         });
 
         hideSoftKeyboard();
         initTextListener();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(SearchList.this, GoogleMapsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     private void initTextListener(){
@@ -186,7 +207,7 @@ public class SearchList extends AppCompatActivity {
     }
 
     public static Double getDistance(double lat_a, double lng_a, double lat_b, double lng_b) {
-        // earth radius is in mile
+
         double earthRadius = 3958.75;
         double latDiff = Math.toRadians(lat_b - lat_a);
         double lngDiff = Math.toRadians(lng_b - lng_a);

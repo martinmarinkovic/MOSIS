@@ -58,9 +58,7 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
     </ListView>
-
 
     <LinearLayout
         android:layout_marginBottom="100dp"
@@ -77,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/black"
-            app:srcCompat="@drawable/ic_change_photo"
+            app:srcCompat="@drawable/ic_add_new_location"
             tools:ignore="VectorDrawableCompat" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

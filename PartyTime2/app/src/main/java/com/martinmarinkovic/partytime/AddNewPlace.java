@@ -67,7 +67,6 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
         spinner = (Spinner) findViewById(R.id.spinner);
 
         addButton.setOnClickListener(this);
-        //addButton.setEnabled(false);
         cancelButton.setOnClickListener(this);
         locationButton.setOnClickListener(this);
 
@@ -110,10 +109,7 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
                 AllPlacesData.getInstance().addNewPlace(place, key);
 
                 setResult(Activity.RESULT_OK);
-                //finish();
 
-                //Float flat = Float.parseFloat(lat);
-                //Float flon = Float.parseFloat(lon);
                 Bundle bundle = new Bundle();
                 bundle.putString("placeID", key);
                 bundle.putString("lat", lat);
@@ -121,10 +117,8 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
                 Intent i = new Intent(AddNewPlace.this, AddMyPlacePhoto.class);
                 i.putExtras(bundle);
                 startActivity(i);
-
                 break;
             }
-
             case R.id.editmyplace_cancel_button: {
                 setResult(Activity.RESULT_CANCELED);
                 finish();
@@ -151,9 +145,7 @@ public class AddNewPlace extends AppCompatActivity implements View.OnClickListen
                 EditText latText = (EditText) findViewById(R.id.editmyplace_lat_edit);
                 latText.setText(lat);
             }
-        } catch (Exception e) {
-            // TODO
-        }
+        } catch (Exception e) {}
     }
 
     public String randomString( int len ){

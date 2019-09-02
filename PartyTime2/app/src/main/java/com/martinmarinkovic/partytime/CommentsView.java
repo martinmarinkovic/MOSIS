@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -79,11 +80,18 @@ public class CommentsView extends AppCompatActivity {
 
         getComment();
 
-        /*if(!mComments.isEmpty()) {
-            CommentListAdapter adapter = new CommentListAdapter(mContext,
-                    R.layout.layout_comment, mComments);
-            mListView.setAdapter(adapter);
-        }*/
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String userID = mComments.get(position).getUser_id();
+                Bundle bundle = new Bundle();
+                bundle.putString("userID", userID);
+                bundle.putString("activity", "FriendsList");
+                Intent i = new Intent(CommentsView.this, UserProfile.class);
+                i.putExtras(bundle);
+                startActivity(i);
+            }
+        });
 
         mCheckMark.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,23 +174,16 @@ public class CommentsView extends AppCompatActivity {
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-            }
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-            }
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-            }
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError databaseError) {}
         });
     }
 }

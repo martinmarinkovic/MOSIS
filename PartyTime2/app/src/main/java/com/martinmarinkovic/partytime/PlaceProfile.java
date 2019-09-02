@@ -8,6 +8,8 @@ import androidx.appcompat.widget.Toolbar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -45,14 +47,18 @@ public class PlaceProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_place_profile);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         myRef = FirebaseDatabase.getInstance().getReference();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         String current_uid = mCurrentUser.getUid();
+
         int position = -1;
         int activity = 0;
+
         placeID = null;
         rating = 0;
         firtsTime = true;
@@ -102,11 +108,9 @@ public class PlaceProfile extends AppCompatActivity {
             final String image = place.getImage().toString();
 
             if (!image.equals("default"))
-                Picasso.get().load(image).placeholder(R.drawable.image_placeholder).into(displayImage);
+                Picasso.get().load(image).placeholder(R.drawable.default_place_profile).into(displayImage);
             else
-                Picasso.get().load(R.drawable.image_placeholder).into(displayImage);
-
-
+                Picasso.get().load(R.drawable.default_place_profile).into(displayImage);
         }
 
         Button showOnMap = (Button) findViewById(R.id.map);
@@ -225,23 +229,36 @@ public class PlaceProfile extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                myRating = dataSnapshot.getValue(Rating.class);
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
             }
 
             @Override
             public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
