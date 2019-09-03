@@ -176,6 +176,7 @@ public class PlaceProfile extends AppCompatActivity {
                 }
 
                 addRating();
+                getRating();
             }
             if (resultCode == RESULT_CANCELED) {}
         }
