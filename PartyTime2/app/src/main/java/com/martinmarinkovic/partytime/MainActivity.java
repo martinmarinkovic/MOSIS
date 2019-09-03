@@ -81,10 +81,12 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
         getSupportActionBar().setTitle("Party Time");
+
         auth = FirebaseAuth.getInstance();
         mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
         current_uid = mCurrentUser.getUid();
         myRef = FirebaseDatabase.getInstance().getReference();
+
         list1 = new ArrayList<>();
         list2 = new ArrayList<>();
         list3 = new ArrayList<>();
@@ -143,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
                     startLocationService();
                 } else {
                     Intent serviceIntent = new Intent(MainActivity.this, LocationService.class);
-                    //unbindService();
                     stopService(new Intent(serviceIntent));
                 }
             }
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onCancelled(@NonNull DatabaseError databaseError) {}
             });
         } else{
-            getLastKnownLocation();
+            //getLastKnownLocation();
         }
     }
 
@@ -267,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
     public boolean isMapsEnabled(){
         final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-
         if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
             buildAlertMessageNoGps();
             return false;
@@ -294,13 +294,9 @@ public class MainActivity extends AppCompatActivity {
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
         if(available == ConnectionResult.SUCCESS){
-            //everything is fine and the user can make map requests
-            Log.d(TAG, "isServicesOK: Google Play Services is working");
             return true;
         }
         else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
-            //an error occured but we can resolve it
-            Log.d(TAG, "isServicesOK: an error occured but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
             dialog.show();
         }else{
@@ -316,7 +312,6 @@ public class MainActivity extends AppCompatActivity {
         mLocationPermissionGranted = false;
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;

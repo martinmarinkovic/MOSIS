@@ -20,6 +20,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+
+import java.text.DecimalFormat;
 import java.util.List;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -47,8 +49,11 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
         final ImageView place_profile_image = (ImageView) listView.findViewById(R.id.place_profile_image);
 
         final MyPlace myPlace = myPlacesLists.get(position);
+
+        float rating = myPlace.getRating();
+
         place_name.setText(myPlace.getName());
-        place_rating.setText(""+myPlace.getRating());
+        place_rating.setText(""+roundTwoDecimals(rating));
         image = myPlace.getImage();
 
         if (!image.equals("default"))
@@ -58,4 +63,8 @@ public class RatingTableAdapter extends ArrayAdapter<MyPlace> {
 
         return listView;
     }
+
+    public float roundTwoDecimals(float d) {
+        DecimalFormat twoDForm = new DecimalFormat("#.#");
+        return Float.valueOf(twoDForm.format(d)); }
 }

@@ -256,9 +256,22 @@ public class PlaceProfile extends AppCompatActivity {
         int id = item.getItemId();
 
         if(id == android.R.id.home){
+            //finish();
+            Intent intent = new Intent(PlaceProfile.this, MyPlacesList.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
             finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(PlaceProfile.this, MyPlacesList.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }

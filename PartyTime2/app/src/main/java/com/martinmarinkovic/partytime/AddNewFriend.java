@@ -317,6 +317,8 @@ public class AddNewFriend extends AppCompatActivity implements AdapterView.OnIte
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        mBTDevices.clear();
+
         if (id == R.id.refresh) {
             if(mBluetoothAdapter.isDiscovering()){
                 mBluetoothAdapter.cancelDiscovery();

@@ -139,7 +139,6 @@ public class UserProfile extends AppCompatActivity {
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
                 bundle.putString("userID", profile_user_id);
-                Toast.makeText(UserProfile.this, profile_user_id, Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(UserProfile.this, FriendPlacesList.class);
                 i.putExtras(bundle);
                 startActivity(i);

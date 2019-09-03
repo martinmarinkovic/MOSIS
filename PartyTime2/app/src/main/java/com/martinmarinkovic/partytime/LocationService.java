@@ -146,7 +146,7 @@ public class LocationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        //stopSelf();
         Toast.makeText(LocationService.this, "Location tracking is disabled!", Toast.LENGTH_SHORT).show();
     }
 }

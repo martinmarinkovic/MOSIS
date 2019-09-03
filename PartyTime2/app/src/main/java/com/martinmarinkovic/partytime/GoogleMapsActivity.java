@@ -76,9 +76,9 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private static final String TAG = "GoogleMaps";
     private GoogleMap mMap;
     static int NEW_PLACE = -1;
-    public static final int SHOW_MAP = 0; //prikaz trenutne korisnikove lokacije
-    public static final int CENTER_PLACE_ON_MAP = 1; //Zumirati na koordinate prosledjene lokacije
-    public static final int SELECT_COORDINATES = 2; //Omoguciti klik na mapu zarad odabira koordinata
+    public static final int SHOW_MAP = 0;
+    public static final int CENTER_PLACE_ON_MAP = 1;
+    public static final int SELECT_COORDINATES = 2;
     private int state = 0;
     private boolean selCoorsEnabled = false;
     private LatLng placeLoc;
@@ -100,7 +100,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     private Runnable mRunnable;
     private static final int LOCATION_UPDATE_INTERVAL = 3000;
     private DatabaseReference mRef;
-
+    private FloatingActionButton fab_add_new_place, fab_user_location, fab_get_all_users_location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,8 +118,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         if (mUserLocations.size() == 0)
             mUserLocations = UserData.getInstance().getUserLocationsList();
 
-        Toast.makeText(GoogleMapsActivity.this, mUserLocations.size() + "", Toast.LENGTH_SHORT).show();
-
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,7 +126,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-        FloatingActionButton fab_add_new_place = (FloatingActionButton) findViewById(R.id.fab_add_new_place);
+        fab_add_new_place = (FloatingActionButton) findViewById(R.id.fab_add_new_place);
         fab_add_new_place.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -137,7 +135,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-        FloatingActionButton fab_user_location = (FloatingActionButton) findViewById(R.id.fab_get_user_location);
+        fab_user_location = (FloatingActionButton) findViewById(R.id.fab_get_user_location);
         fab_user_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,7 +143,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
 
-        FloatingActionButton fab_get_all_users_location = (FloatingActionButton) findViewById(R.id.fab_get_all_users_location);
+        fab_get_all_users_location = (FloatingActionButton) findViewById(R.id.fab_get_all_users_location);
         fab_get_all_users_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -211,7 +209,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_ACCESS_FINE_LOCATION);
         } else {
-            if (state == SHOW_MAP) {  //korisnikova lokacija???
+            if (state == SHOW_MAP) {
                 mMap.setMyLocationEnabled(true);
                 if (placeLoc != null) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
@@ -220,6 +218,13 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                 selCoorsEnabled = true;
                 setOnMapClickListener();
+                fab_add_new_place.hide();
+                fab_user_location.hide();
+                fab_get_all_users_location.hide();
+
+            } else if (state == CENTER_PLACE_ON_MAP) {
+                mMap.setMyLocationEnabled(true);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
             } else {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
             }
@@ -248,13 +253,12 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     @SuppressLint("MissingPermission")
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ACCESS_FINE_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                    mMap.setMyLocationEnabled(true);
+                    mMap.setMyLocationEnabled(true);
 //                    setOnMapClickListener();
                     if (state == SHOW_MAP) {
                         mMap.setMyLocationEnabled(true);
@@ -262,9 +266,8 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                         }
                     } else if (state == CENTER_PLACE_ON_MAP) {
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 5));
-                        setOnMapClickListener();//?????????????????
-                        //treba da zumiramo na to konkretno mesto
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
+                        //setOnMapClickListener();
                     } else {
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLoc, 15));
                     }
@@ -331,7 +334,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         });
     }
 
-    //Na odredjen vremenski interval zovemo retrieveUserLocations();
     private void startUserLocationsRunnable(){
         Log.d(TAG, "startUserLocationsRunnable: starting runnable for retrieving updated locations.");
         mHandler.postDelayed(mRunnable = new Runnable() {
@@ -360,8 +362,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                         final UserLocation updatedUserLocation = dataSnapshot.getValue(UserLocation.class);
 
-                        //Toast.makeText(GoogleMapsActivity.this, dataSnapshot.getKey(), Toast.LENGTH_SHORT).show();
-
                         // update the location
                         for (int i = 0; i < mClusterMarkers.size(); i++) {
                             try {
@@ -381,24 +381,16 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                     }
 
                     @Override
-                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
                     @Override
-                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
-                    }
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {}
 
                     @Override
-                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
-                    }
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {}
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(@NonNull DatabaseError databaseError) {}
                 });
             }
         }
@@ -425,19 +417,17 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             for(UserLocation userLocation: mUserLocations){
 
                 try{
-                    String snippet = "";
+                    /*String snippet = "";
                     if(userLocation.getUser().getUserID().equals(FirebaseAuth.getInstance().getUid())){
-                        //snippet = "This is you";
-                    }
-                    else{
-                        //snippet = "This is your friend ";
-                    }
+                        snippet = "This is you";
+                    } else
+                        snippet = "This is your friend ";
+                    */
 
-                    //String avatar = "default";
-                    String avatar = userLocation.getUser().image;
-                    /*try{
+                    String avatar = "default";
+                    try{
                         avatar = userLocation.getUser().image;
-                    }catch (NumberFormatException e){}*/
+                    }catch (NumberFormatException e){}
 
                     ClusterMarker newClusterMarker = new ClusterMarker(
                             new LatLng(userLocation.getGeo_point().getLatitude(), userLocation.getGeo_point().getLongitude()),
@@ -446,30 +436,14 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                             avatar,
                             userLocation.getUser()
                     );
-                    mClusterManager.addItem(newClusterMarker); //Nema bas dobre metode pa kreiramo i donju listu
-                    mClusterMarkers.add(newClusterMarker); //Ne dodaje ga odmah na mapu, cuvamo ga kao referencu za kasnije
+                    mClusterManager.addItem(newClusterMarker);
+                    mClusterMarkers.add(newClusterMarker);
 
                 }catch (NullPointerException e){
                     Log.e(TAG, "addMapMarkers: NullPointerException: " + e.getMessage() );
                 }
             }
             mClusterManager.cluster();
-
-            /*        mClusterManager.setOnClusterItemClickListener(
-                            new ClusterManager.OnClusterItemClickListener<ClusterMarker>() {
-                                @Override
-                                public boolean onClusterItemClick(ClusterMarker clusterItem) {
-
-                                    String userID = clusterItem.getUser().getUserID();
-                                    Bundle positionBundle = new Bundle();
-                                    positionBundle.putString("userID", userID);
-                                    positionBundle.putString("activity", "FriendsList");
-                                    Intent intent = new Intent(GoogleMapsActivity.this, UserProfile.class);
-                                    intent.putExtras(positionBundle);
-                                    startActivity(intent);
-                                    return false;
-                                }
-                            });*/
 
             mClusterManager.setOnClusterItemInfoWindowClickListener(
                     new ClusterManager.OnClusterItemInfoWindowClickListener<ClusterMarker>() {
@@ -485,19 +459,9 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
                         }
                     });
 
-            //mMap.setOnMarkerClickListener(mClusterManager);
-
             mMap.setOnInfoWindowClickListener(mClusterManager);
         }
     }
-
-    /*private void setUserPosition() {
-        for (UserLocation userLocation : mUserLocations) {
-            if (userLocation.getUser().getUserID().equals(FirebaseAuth.getInstance().getUid())) {
-                mUserPosition = userLocation;
-            }
-        }
-    }*/
 
     private void getUserLocation() {
         //mMap.setMyLocationEnabled(true);
@@ -505,13 +469,12 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
         LatLng myLocation = null;
         if (userLocation != null) {
             myLocation = new LatLng(userLocation.getLatitude(), userLocation.getLongitude());
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,mMap.getMaxZoomLevel() - 5));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation,mMap.getMaxZoomLevel() - 3));
         }
     }
 
     private void setList(){
         myPlacesListView = (ListView)findViewById(R.id.listView);
-        //myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, MyPlacesData.getInstance().getMyPlaces()));
         myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
     }
 
@@ -520,8 +483,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
     }
 
     private void initTextListener(){
-
-        //mPlacesList = new ArrayList<>();
 
         mSearchText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -542,9 +503,16 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void searchForMatch(String keyword){
 
+        fab_add_new_place.hide();
+        fab_user_location.hide();
+        fab_get_all_users_location.hide();
+
         mPlacesList.clear();
         if(keyword.length() ==0){
             refreshList();
+            fab_add_new_place.show();
+            fab_user_location.show();
+            fab_get_all_users_location.show();
         }else{
             setList();
             if(searchType.equals("All")) {
@@ -567,12 +535,10 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void updateSearchList(){
 
-        //refreshList();
         myPlacesListView.setAdapter(new ArrayAdapter<MyPlace>(this, android.R.layout.simple_list_item_1, mPlacesList));
         myPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //mSearchText.setText(mPlacesList.get(position).getName());
                 geoLocate(mPlacesList.get(position));
             }
         });
@@ -580,7 +546,7 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
 
     private void geoLocate(MyPlace myPlace){
         LatLng placeLoc = new LatLng(Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude()));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,mMap.getMaxZoomLevel() - 5));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(placeLoc,mMap.getMaxZoomLevel() - 3));
         mPlacesList.clear();
         refreshList();
         hideSoftKeyboard();
@@ -591,60 +557,6 @@ public class GoogleMapsActivity extends AppCompatActivity implements OnMapReadyC
             InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
-    }
-
-    private void radiusSearchResult(){
-        Toast.makeText(GoogleMapsActivity.this, "Upao u funkciju! Radijus je: " + searchRadius, Toast.LENGTH_SHORT).show();
-        Location userLocation = mMap.getMyLocation();
-        double lat1 = userLocation.getLatitude();
-        double lon1 = userLocation.getLongitude();
-        for (MyPlace myPlace : lista) {
-            if(distance(lat1, lon1, Double.parseDouble(myPlace.getLatitude()), Double.parseDouble(myPlace.getLongitude())) < 10) {
-                mPlacesList.add(myPlace);
-                Toast.makeText(GoogleMapsActivity.this, "Prvo mesto: : " +  mPlacesList.get(0).getName(), Toast.LENGTH_SHORT).show();
-                setList();
-            }
-        }
-    }
-
-    public static Double getDistance(double lat_a, double lng_a, double lat_b, double lng_b) {
-        // earth radius is in mile
-        double earthRadius = 3958.75;
-        double latDiff = Math.toRadians(lat_b - lat_a);
-        double lngDiff = Math.toRadians(lng_b - lng_a);
-        double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2)
-                + Math.cos(Math.toRadians(lat_a))
-                * Math.cos(Math.toRadians(lat_b)) * Math.sin(lngDiff / 2)
-                * Math.sin(lngDiff / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = earthRadius * c;
-
-        int meterConversion = 1609;
-        double kmConvertion = 1.6093;
-        return new Double(distance * kmConvertion).doubleValue();
-        //return String.format("%.2f", new Float(distance * kmConvertion).floatValue()) + " km";
-        // return String.format("%.2f", distance)+" m";
-    }
-
-    private double distance(double lat1, double lon1, double lat2, double lon2) {
-        double theta = lon1 - lon2;
-        double dist = Math.sin(deg2rad(lat1))
-                * Math.sin(deg2rad(lat2))
-                + Math.cos(deg2rad(lat1))
-                * Math.cos(deg2rad(lat2))
-                * Math.cos(deg2rad(theta));
-        dist = Math.acos(dist);
-        dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515;
-        return (dist);
-    }
-
-    private double deg2rad(double deg) {
-        return (deg * Math.PI / 180.0);
-    }
-
-    private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
     }
 
     @Override

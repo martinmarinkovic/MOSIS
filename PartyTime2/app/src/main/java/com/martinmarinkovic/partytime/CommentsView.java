@@ -125,9 +125,7 @@ public class CommentsView extends AppCompatActivity {
     }
 
     private void addNewComment(String newComment){
-        Log.d(TAG, "addNewComment: adding new comment: " + newComment);
 
-        Toast.makeText(CommentsView.this, mComment.getText().toString(), Toast.LENGTH_SHORT).show();
         String commentID = myRef.push().getKey();
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
